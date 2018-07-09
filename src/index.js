@@ -4,88 +4,41 @@
 import "./styles/index.css";
 
 import loadImages from "./load_images";
+import makeMap from "./map";
+import { imagePaths } from "./util";
 
 document.addEventListener("DOMContentLoaded", function() {
 
   console.log("Proxma Reverie approaches!");
 
-  var canvas = document.getElementById('canvas');
-  var context = canvas.getContext('2d');
+  var viewport = document.getElementById('viewport-canvas');
+  var viewportContext = viewport.getContext('2d');
+  let viewportWidth = 600, viewportHeight = 400;
+  viewport.width = viewportWidth;
+  viewport.height = viewportHeight;
 
   let tileWidth = 128, tileHeight = 64;
-  let canvasWidth = 600, canvasHeight = 400;
-  let canvasXOffset = (canvasWidth / 2) - (tileWidth / 2);
 
-  canvas.width = canvasWidth;
-  canvas.height = canvasHeight;
+  let mapSize = 20;
 
-  context.fillStyle = 'white';
-  context.fillRect(0, 0, canvasWidth, canvasHeight);
+  let viewportLimitX = (mapSize * tileWidth) - viewportWidth;
+  let viewportLimitY = (mapSize * tileHeight) - viewportHeight;
 
-  let tilePngs = [
-    './src/img/ground_tiles/brickpavers2.png',
-    './src/img/ground_tiles/concrete368a.png',
-    './src/img/ground_tiles/cretebrick970.png',
-    './src/img/ground_tiles/dirt.png',
-    './src/img/ground_tiles/dirtsand2.png',
-    './src/img/ground_tiles/rock.png',
-    './src/img/ground_tiles/snow.png',
-    './src/img/ground_tiles/stone.png'
-  ];
+  viewportContext.fillStyle = 'white';
+  viewportContext.fillRect(0, 0, viewportWidth, viewportHeight);
 
-  loadImages(tilePngs, (images) => {
+  loadImages(imagePaths, (images) => {
     document.getElementById('loading-images-message').classList.add('hide');
     document.getElementById('images-loaded-message').classList.remove('hide');
 
-    let tileMap = buildTileMap(images.length);
+    let map = makeMap(mapSize, images, tileWidth, tileHeight);
 
-    drawTileMap(tileMap, images);
+    document.body.appendChild(map);
+
+    viewportContext.drawImage(map, 0, 0, viewportWidth, viewportHeight, 0, 0, viewportWidth, viewportHeight);
 
   });
 
-  function drawTileMap(tileMap, tileImages) {
-    for (let [x, row] of tileMap.entries()) {
-      for (let [y, tileIndex] of row.entries()) {
-        drawTile(tileImages[tileIndex], x, y);
-      }
-    }
-  }
 
-  function drawTile(img, mapX, mapY) {
-    let canvasX = ((mapX - mapY) * (tileWidth / 2)) + canvasXOffset;
-    let canvasY = (mapX + mapY) * (tileHeight / 2);
-    console.log(`${canvasX}, ${canvasY}`);
-    context.drawImage(img, canvasX, canvasY, tileWidth, tileHeight);
-  }
-
-  function buildTileMap(tileCount) {
-    return [
-      [
-        rand(tileCount),
-        rand(tileCount),
-        rand(tileCount),
-        rand(tileCount)
-      ], [
-        rand(tileCount),
-        rand(tileCount),
-        rand(tileCount),
-        rand(tileCount)
-      ], [
-        rand(tileCount),
-        rand(tileCount),
-        rand(tileCount),
-        rand(tileCount)
-      ], [
-        rand(tileCount),
-        rand(tileCount),
-        rand(tileCount),
-        rand(tileCount)
-      ]
-    ]
-  }
-
-  function rand(max) {
-    return Math.floor(Math.random() * Math.floor(max));
-  }
 
 });
