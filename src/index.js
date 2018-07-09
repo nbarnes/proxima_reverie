@@ -20,10 +20,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
   let tileWidth = 128, tileHeight = 64;
 
-  let mapSize = 20;
+  let mapSize = 10;
 
-  let viewportLimitX = (mapSize * tileWidth) - viewportWidth;
-  let viewportLimitY = (mapSize * tileHeight) - viewportHeight;
+  let viewOffsetLimitX = (mapSize * tileWidth) - viewportWidth - mapSize;
+  let viewOffsetLimitY = (mapSize * tileHeight) - viewportHeight - mapSize;
 
   viewportContext.fillStyle = 'white';
   viewportContext.fillRect(0, 0, viewportWidth, viewportHeight);
@@ -44,24 +44,38 @@ document.addEventListener("DOMContentLoaded", function() {
   let viewOffsetY = ((mapSize * tileHeight - mapSize) / 2) - (viewportHeight / 2);
 
   function doTick(map) {
-    console.log(`${viewOffsetX}, ${viewOffsetY}`);
     viewportContext.fillRect(0, 0, viewportWidth, viewportHeight);
     viewportContext.drawImage(map, viewOffsetX, viewOffsetY, viewportWidth, viewportHeight, 0, 0, viewportWidth, viewportHeight);
-    console.log(`keys pressed at tick = ${Keys.getKeysPressed()}`);
     for (let keyCode of Keys.getKeysPressed()) {
-      console.log(keyCode);
+      let newOffset;
       switch (keyCode) {
         case "ArrowLeft":
-          viewOffsetX = viewOffsetX - 5;
+          newOffset = viewOffsetX - 5;
+          if (newOffset < 0) {
+            newOffset = 0;
+          }
+          viewOffsetX = newOffset;
           break;
         case "ArrowRight":
-          viewOffsetX = viewOffsetX + 5;
+          newOffset = viewOffsetX + 5;
+          if (newOffset > viewOffsetLimitX) {
+            newOffset = viewOffsetLimitX;
+          }
+          viewOffsetX = newOffset;
           break;
         case "ArrowUp":
-          viewOffsetY = viewOffsetY - 5;
+          newOffset = viewOffsetY - 5;
+          if (newOffset < 0) {
+            newOffset = 0;
+          }
+          viewOffsetY = newOffset;
           break;
         case "ArrowDown":
-          viewOffsetY = viewOffsetY + 5;
+          newOffset = viewOffsetY + 5;
+          if (newOffset > viewOffsetLimitY) {
+            newOffset = viewOffsetLimitY;
+          }
+          viewOffsetY = newOffset;
           break;
       }
     }
