@@ -5,7 +5,7 @@ A tactical RPG engine similar to X-Com or Final Fantasy Tactics
 
 TECHNOLOGY
 ==========
-Proxima Reverie primarily runs in the browser, using an HTML5 canvas element driven by Javascript.  Supporting technologies TBD.
+Proxima Reverie primarily runs in the browser, using an HTML5 canvas element driven by Javascript.  Supporting technologies TBD. npm and webpack for builds.
 
 WHERE
 =====
@@ -13,7 +13,11 @@ No live build available
 
 BUILD
 =====
-No build information available
+* Edit your source code, found in `index.html` and `/src`
+* Make sure you have Node.js, and then make sure you have node package manager, then run `npx webpack`
+* Your build will be in `/dist` as `main.js`
+* Serve your build with the local server of your choice (I use [http-server](https://www.npmjs.com/package/http-server))
+* Visit the served page at `localhost:8080` (port subject to change based on your local server settings)
 
 CONTRIBUTOR COVENANT
 ====================

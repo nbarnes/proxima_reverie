@@ -1,0 +1,13 @@
+
+/* @import 'foo.css'; */
+
+body {
+  color: #fff;
+  background-color: #333;
+  font-size: 14px;
+  font-family: 'Lato', sans-serif;
+}
+
+.hide {
+  display: none;
+}

@@ -1,0 +1,26 @@
+{
+  "name": "proxima_reverie",
+  "version": "1.0.0",
+  "description": "A tactical RPG engine similar to X-Com or Final Fantasy Tactics",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nbarnes/proxima_reverie.git"
+  },
+  "keywords": [
+    "tactical",
+    "rpg",
+    "proxima_reverie"
+  ],
+  "author": "Nathaniel Barnes",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nbarnes/proxima_reverie/issues"
+  },
+  "homepage": "https://github.com/nbarnes/proxima_reverie#readme",
+  "devDependencies": {
+    "css-loader": "^1.0.0",
+    "mini-css-extract-plugin": "^0.4.1",
+    "webpack": "^4.15.1",
+    "webpack-cli": "^3.0.8"
+  }
+}
