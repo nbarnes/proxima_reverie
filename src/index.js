@@ -3,7 +3,7 @@
 
 import "./styles/index.css";
 
-/* import { foo } from "./foo"; */
+import loadImages from "./load_images";
 
 document.addEventListener("DOMContentLoaded", function() {
 
@@ -12,20 +12,9 @@ document.addEventListener("DOMContentLoaded", function() {
   var canvas = document.getElementById('canvas');
   var context = canvas.getContext('2d');
 
-  let tileImgs = [ loadTile('/src/img/ground_tiles/brickpavers2.png'),
-                   loadTile('/src/img/ground_tiles/concrete368a.png'),
-                   loadTile('/src/img/ground_tiles/cretebrick970.png'),
-                   loadTile('/src/img/ground_tiles/dirt.png'),
-                   loadTile('/src/img/ground_tiles/dirtsand2.png'),
-                   loadTile('/src/img/ground_tiles/rock.png'),
-                   loadTile('/src/img/ground_tiles/snow.png'),
-                   loadTile('/src/img/ground_tiles/stone.png')
-                 ]
-
-  let tileMap = buildTileMap();
-
-  let tileWidth = 64, tileHeight = 32;
+  let tileWidth = 128, tileHeight = 64;
   let canvasWidth = 600, canvasHeight = 400;
+  let canvasXOffset = (canvasWidth / 2) - (tileWidth / 2);
 
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
@@ -33,60 +22,73 @@ document.addEventListener("DOMContentLoaded", function() {
   context.fillStyle = 'white';
   context.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  for (let tile of tileImgs) {
-    document.body.appendChild(tile);
-  }
+  let tilePngs = [
+    '/src/img/ground_tiles/brickpavers2.png',
+    '/src/img/ground_tiles/concrete368a.png',
+    '/src/img/ground_tiles/cretebrick970.png',
+    '/src/img/ground_tiles/dirt.png',
+    '/src/img/ground_tiles/dirtsand2.png',
+    '/src/img/ground_tiles/rock.png',
+    '/src/img/ground_tiles/snow.png',
+    '/src/img/ground_tiles/stone.png'
+  ];
 
-  drawTileMap();
+  loadImages(tilePngs, (images) => {
+    document.getElementById('loading-images-message').classList.add('hide');
+    document.getElementById('images-loaded-message').classList.remove('hide');
 
-  function drawTileMap() {
+    for (let tileImage of images) {
+      document.body.appendChild(tileImage);
+    }
+
+    let tileMap = buildTileMap(images.length);
+
+    drawTileMap(tileMap, images);
+
+  });
+
+  function drawTileMap(tileMap, tileImages) {
     for (let [x, row] of tileMap.entries()) {
-      for (let [y, tile] of row.entries()) {
-        drawTile(tile, x, y);
+      for (let [y, tileIndex] of row.entries()) {
+        drawTile(tileImages[tileIndex], x, y);
       }
     }
   }
 
-  function drawTile(img, tileX, tileY) {
-    let canvasX = (tileWidth * tileX) + ( (tileX % 2) * (tileWidth / 2) );
-    let canvasY = (tileHeight * tileY);
+  function drawTile(img, mapX, mapY) {
+    let canvasX = ((mapX - mapY) * (tileWidth / 2)) + canvasXOffset;
+    let canvasY = (mapX + mapY) * (tileHeight / 2);
     console.log(`${canvasX}, ${canvasY}`);
-    context.drawImage(img, canvasX, canvasY, tileHeight, tileWidth);
+    context.drawImage(img, canvasX, canvasY, tileWidth, tileHeight);
   }
 
-  function buildTileMap() {
+  function buildTileMap(tileCount) {
     return [
       [
-        tileImgs[getRandomInt(4)],
-        tileImgs[getRandomInt(4)],
-        tileImgs[getRandomInt(4)],
-        tileImgs[getRandomInt(4)]
+        rand(tileCount),
+        rand(tileCount),
+        rand(tileCount),
+        rand(tileCount)
       ], [
-        tileImgs[getRandomInt(4)],
-        tileImgs[getRandomInt(4)],
-        tileImgs[getRandomInt(4)],
-        tileImgs[getRandomInt(4)]
+        rand(tileCount),
+        rand(tileCount),
+        rand(tileCount),
+        rand(tileCount)
       ], [
-        tileImgs[getRandomInt(4)],
-        tileImgs[getRandomInt(4)],
-        tileImgs[getRandomInt(4)],
-        tileImgs[getRandomInt(4)]
+        rand(tileCount),
+        rand(tileCount),
+        rand(tileCount),
+        rand(tileCount)
       ], [
-        tileImgs[getRandomInt(4)],
-        tileImgs[getRandomInt(4)],
-        tileImgs[getRandomInt(4)],
-        tileImgs[getRandomInt(4)]
+        rand(tileCount),
+        rand(tileCount),
+        rand(tileCount),
+        rand(tileCount)
       ]
     ]
   }
 
-  function loadTile(fileName) {
-    let img = new Image();
-    img.src = fileName;
-    return img;
-  }
-
-  function getRandomInt(max) {
+  function rand(max) {
     return Math.floor(Math.random() * Math.floor(max));
   }
 
