@@ -34,6 +34,5 @@ function drawTile(context, mapSize, img, mapX, mapY, tileWidth, tileHeight) {
   let xOffset = ((mapSize * tileWidth) / 2) - (tileWidth / 2);
   let contextX = ((mapX - mapY) * (tileWidth / 2)) - mapX + xOffset;
   let contextY = (mapX + mapY) * (tileHeight / 2) - mapY;
-  console.log(`${contextX}, ${contextY}`);
   context.drawImage(img, contextX, contextY, tileWidth, tileHeight);
 }

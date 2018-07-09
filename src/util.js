@@ -12,7 +12,6 @@ export const imagePaths = [
   './src/img/ground_tiles/stone.png'
 ];
 
-
 export const rand = (max) => {
   return Math.floor(Math.random() * Math.floor(max));
 }
