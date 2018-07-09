@@ -9,7 +9,7 @@ Proxima Reverie primarily runs in the browser, using an HTML5 canvas element dri
 
 WHERE
 =====
-No live build available
+Live build at https://nbarnes.github.io/proxima_reverie/
 
 BUILD
 =====
