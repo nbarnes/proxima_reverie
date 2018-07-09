@@ -57,10 +57,10 @@ document.addEventListener("DOMContentLoaded", function() {
           viewOffsetX = viewOffsetX - 5;
           break;
         case "ArrowUp":
-          viewOffsetY = viewOffsetY - 5;
+          viewOffsetY = viewOffsetY + 5;
           break;
         case "ArrowDown":
-          viewOffsetY = viewOffsetY + 5;
+          viewOffsetY = viewOffsetY - 5;
           break;
       }
     }
