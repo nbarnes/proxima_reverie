@@ -23,14 +23,14 @@ document.addEventListener("DOMContentLoaded", function() {
   context.fillRect(0, 0, canvasWidth, canvasHeight);
 
   let tilePngs = [
-    '/src/img/ground_tiles/brickpavers2.png',
-    '/src/img/ground_tiles/concrete368a.png',
-    '/src/img/ground_tiles/cretebrick970.png',
-    '/src/img/ground_tiles/dirt.png',
-    '/src/img/ground_tiles/dirtsand2.png',
-    '/src/img/ground_tiles/rock.png',
-    '/src/img/ground_tiles/snow.png',
-    '/src/img/ground_tiles/stone.png'
+    './src/img/ground_tiles/brickpavers2.png',
+    './src/img/ground_tiles/concrete368a.png',
+    './src/img/ground_tiles/cretebrick970.png',
+    './src/img/ground_tiles/dirt.png',
+    './src/img/ground_tiles/dirtsand2.png',
+    './src/img/ground_tiles/rock.png',
+    './src/img/ground_tiles/snow.png',
+    './src/img/ground_tiles/stone.png'
   ];
 
   loadImages(tilePngs, (images) => {
