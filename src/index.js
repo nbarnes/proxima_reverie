@@ -45,22 +45,23 @@ document.addEventListener("DOMContentLoaded", function() {
 
   function doTick(map) {
     console.log(`${viewOffsetX}, ${viewOffsetY}`);
+    viewportContext.fillRect(0, 0, viewportWidth, viewportHeight);
     viewportContext.drawImage(map, viewOffsetX, viewOffsetY, viewportWidth, viewportHeight, 0, 0, viewportWidth, viewportHeight);
     console.log(`keys pressed at tick = ${Keys.getKeysPressed()}`);
     for (let keyCode of Keys.getKeysPressed()) {
       console.log(keyCode);
       switch (keyCode) {
         case "ArrowLeft":
-          viewOffsetX = viewOffsetX + 5;
-          break;
-        case "ArrowRight":
           viewOffsetX = viewOffsetX - 5;
           break;
+        case "ArrowRight":
+          viewOffsetX = viewOffsetX + 5;
+          break;
         case "ArrowUp":
-          viewOffsetY = viewOffsetY + 5;
+          viewOffsetY = viewOffsetY - 5;
           break;
         case "ArrowDown":
-          viewOffsetY = viewOffsetY - 5;
+          viewOffsetY = viewOffsetY + 5;
           break;
       }
     }
