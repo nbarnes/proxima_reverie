@@ -37,10 +37,6 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('loading-images-message').classList.add('hide');
     document.getElementById('images-loaded-message').classList.remove('hide');
 
-    for (let tileImage of images) {
-      document.body.appendChild(tileImage);
-    }
-
     let tileMap = buildTileMap(images.length);
 
     drawTileMap(tileMap, images);
