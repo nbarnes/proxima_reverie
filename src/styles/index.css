@@ -8,6 +8,12 @@ body {
   font-family: 'Lato', sans-serif;
 }
 
+canvas {
+  margin: 50px;
+  width: 600px;
+  height: 400px;
+}
+
 .hide {
   display: none;
 }
