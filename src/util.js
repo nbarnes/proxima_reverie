@@ -1,7 +1,7 @@
 
 "use strict";
 
-export const imagePaths = [
+export const tileImagePaths = [
   './src/img/ground_tiles/brickpavers2.png',
   './src/img/ground_tiles/concrete368a.png',
   './src/img/ground_tiles/cretebrick970.png',
@@ -11,6 +11,10 @@ export const imagePaths = [
   './src/img/ground_tiles/snow.png',
   './src/img/ground_tiles/stone.png'
 ];
+
+export const mobileSpritePath = [
+  './src/img/mobiles/8way_mobile.png'
+]
 
 export const rand = (max) => {
   return Math.floor(Math.random() * Math.floor(max));

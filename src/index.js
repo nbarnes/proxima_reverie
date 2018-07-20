@@ -3,9 +3,10 @@
 
 import "./styles/index.css";
 
-import loadImages from "./load_images";
-import makeMap from "./map";
-import { imagePaths } from "./util";
+import { Assets } from "./asset_manager.js";
+import Map from "./map.js";
+import Entity from "./entity.js";
+import { tileImagePaths, mobileSpritePath } from "./util";
 import { Keys } from "./keys";
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -28,62 +29,57 @@ document.addEventListener("DOMContentLoaded", function() {
   viewportContext.fillStyle = 'white';
   viewportContext.fillRect(0, 0, viewportWidth, viewportHeight);
 
-  loadImages(imagePaths, (images) => {
+  let map = new Map(tileImagePaths, mapSize, tileWidth, tileHeight);
+  let mobile = new Entity(mobileSpritePath);
+
+  Assets.loadAssets([map, mobile], () => {
+
     document.getElementById('loading-images-message').classList.add('hide');
     document.getElementById('images-loaded-message').classList.remove('hide');
 
-    let map = makeMap(mapSize, images, tileWidth, tileHeight);
-
     setTimeout(() => {
       doTick(map);
-    }, 2000);
+    }, 500);
 
   });
 
   let viewOffsetX = ((mapSize * tileWidth - mapSize) / 2) - (viewportWidth / 2);
   let viewOffsetY = ((mapSize * tileHeight - mapSize) / 2) - (viewportHeight / 2);
 
+  let mobilePosX = viewportWidth / 2;
+  let mobilePosY = viewportHeight / 2;
+
   function doTick(map) {
+    console.log('tick');
     viewportContext.fillRect(0, 0, viewportWidth, viewportHeight);
-    viewportContext.drawImage(map, viewOffsetX, viewOffsetY, viewportWidth, viewportHeight, 0, 0, viewportWidth, viewportHeight);
+    viewportContext.drawImage(map.mapImage, viewOffsetX, viewOffsetY, viewportWidth, viewportHeight, 0, 0, viewportWidth, viewportHeight);
+
     for (let keyCode of Keys.getKeysPressed()) {
-      let newOffset;
+      console.log(Keys.getKeysPressed());
       switch (keyCode) {
         case "ArrowLeft":
-          newOffset = viewOffsetX - 5;
-          if (newOffset < 0) {
-            newOffset = 0;
-          }
-          viewOffsetX = newOffset;
+          mobilePosX = mobilePosX - 3;
           break;
         case "ArrowRight":
-          newOffset = viewOffsetX + 5;
-          if (newOffset > viewOffsetLimitX) {
-            newOffset = viewOffsetLimitX;
-          }
-          viewOffsetX = newOffset;
+          mobilePosX = mobilePosX + 3;
           break;
         case "ArrowUp":
-          newOffset = viewOffsetY - 5;
-          if (newOffset < 0) {
-            newOffset = 0;
-          }
-          viewOffsetY = newOffset;
+          mobilePosY = mobilePosY - 3;
           break;
         case "ArrowDown":
-          newOffset = viewOffsetY + 5;
-          if (newOffset > viewOffsetLimitY) {
-            newOffset = viewOffsetLimitY;
-          }
-          viewOffsetY = newOffset;
+          mobilePosY = mobilePosY + 3;
           break;
       }
     }
     Keys.resetPresses();
 
+    let mobileFrameWidth = 60;
+    let mobileFrameHeight = 110;
+    viewportContext.drawImage(mobile.image, 0, 0, mobileFrameWidth, mobileFrameHeight, mobilePosX, mobilePosY, mobileFrameWidth, mobileFrameHeight);
+
     setTimeout(() => {
       doTick(map);
-    }, 25);
+    }, 500);
 
   }
 
