@@ -3,11 +3,11 @@
 
 import "./styles/index.css";
 
-import { Assets } from "./asset_manager.js";
-import Map from "./map.js";
-import Entity from "./entity.js";
+import { Assets } from "./asset_manager";
+import Map from "./map";
+import Entity from "./entity";
 import { tileImagePaths, mobileSpritePath } from "./util";
-import { Keys } from "./keys";
+import { Input } from "./input";
 
 document.addEventListener("DOMContentLoaded", function() {
 
@@ -26,11 +26,8 @@ document.addEventListener("DOMContentLoaded", function() {
   let viewOffsetLimitX = (mapSize * tileWidth) - viewportWidth - mapSize;
   let viewOffsetLimitY = (mapSize * tileHeight) - viewportHeight - mapSize;
 
-  viewportContext.fillStyle = 'white';
-  viewportContext.fillRect(0, 0, viewportWidth, viewportHeight);
-
   let map = new Map(tileImagePaths, mapSize, tileWidth, tileHeight);
-  let mobile = new Entity(mobileSpritePath);
+  let mobile = new Entity(mobileSpritePath, viewportWidth / 2, viewportHeight / 2);
 
   Assets.loadAssets([map, mobile], () => {
 
@@ -46,36 +43,27 @@ document.addEventListener("DOMContentLoaded", function() {
   let viewOffsetX = ((mapSize * tileWidth - mapSize) / 2) - (viewportWidth / 2);
   let viewOffsetY = ((mapSize * tileHeight - mapSize) / 2) - (viewportHeight / 2);
 
-  let mobilePosX = viewportWidth / 2;
-  let mobilePosY = viewportHeight / 2;
-
   function doTick(map) {
-    console.log('tick');
-    viewportContext.fillRect(0, 0, viewportWidth, viewportHeight);
+    // console.log('tick');
+    viewportContext.clearRect(0, 0, viewportWidth, viewportHeight);
     viewportContext.drawImage(map.mapImage, viewOffsetX, viewOffsetY, viewportWidth, viewportHeight, 0, 0, viewportWidth, viewportHeight);
 
-    for (let keyCode of Keys.getKeysPressed()) {
-      console.log(Keys.getKeysPressed());
-      switch (keyCode) {
-        case "ArrowLeft":
-          mobilePosX = mobilePosX - 3;
-          break;
-        case "ArrowRight":
-          mobilePosX = mobilePosX + 3;
-          break;
-        case "ArrowUp":
-          mobilePosY = mobilePosY - 3;
-          break;
-        case "ArrowDown":
-          mobilePosY = mobilePosY + 3;
-          break;
-      }
+    let mouseEvent = Input.getMouseEvent();
+    if (mouseEvent != undefined) {
+      mobile.respondToMouse(mouseEvent);
     }
-    Keys.resetPresses();
 
-    let mobileFrameWidth = 60;
-    let mobileFrameHeight = 110;
-    viewportContext.drawImage(mobile.image, 0, 0, mobileFrameWidth, mobileFrameHeight, mobilePosX, mobilePosY, mobileFrameWidth, mobileFrameHeight);
+    mobile.tick();
+
+    viewportContext.drawImage(
+      mobile.image,
+      mobile.frameXOrigin, mobile.frameYOrigin,
+      mobile.frameWidth, mobile.frameHeight,
+      mobile.location.x, mobile.location.y,
+      mobile.frameWidth, mobile.frameHeight
+    );
+
+    Input.resetInputs();
 
     setTimeout(() => {
       doTick(map);
@@ -84,11 +72,22 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   document.addEventListener('keydown', (event) => {
-    Keys.keyDown(event.key);
+    Input.keyDown(event.key);
   });
 
   document.addEventListener('keyup', (event) => {
-    Keys.keyUp(event.key);
+    Input.keyUp(event.key);
   });
+
+  viewport.addEventListener('mouseup', (event) => {
+    Input.mouseUp(getCursorPosition(viewport, event));
+  });
+
+  function getCursorPosition(canvas, event) {
+    var rect = canvas.getBoundingClientRect();
+    var x = event.clientX - rect.left;
+    var y = event.clientY - rect.top;
+    return {x: x, y: y};
+  }
 
 });

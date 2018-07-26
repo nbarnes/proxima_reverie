@@ -1,10 +1,11 @@
 
 "use strict";
 
-export const Keys = (function() {
+export const Input = (function() {
 
   let keysDown = [];
   let keysPressed = [];
+  let mouseEventPoint = undefined;
 
   function keyDown(keyCode) {
     if (keysPressed.indexOf(keyCode) < 0) {
@@ -21,21 +22,32 @@ export const Keys = (function() {
     });
   }
 
-  function resetPresses() {
-    keysPressed = [];
-  }
-
   function getKeysPressed() {
     return keysDown.concat(keysPressed.filter( (key) => {
       return keysDown.indexOf(key) < 0;
     }));
   }
 
+  function mouseUp(point) {
+    mouseEventPoint = point;
+  }
+
+  function getMouseEvent() {
+    return mouseEventPoint;
+  }
+
+  function resetInputs() {
+    keysPressed = [];
+    mouseEventPoint = undefined;
+  }
+
   return {
     keyDown: keyDown,
     keyUp: keyUp,
-    resetPresses: resetPresses,
     getKeysPressed: getKeysPressed,
+    mouseUp: mouseUp,
+    getMouseEvent: getMouseEvent,
+    resetInputs: resetInputs
   }
 
 })();
