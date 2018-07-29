@@ -2,9 +2,9 @@
 "use strict";
 
 import { Assets } from "./asset_manager";
-import Loadable from "./asset_owner";
+import AssetOwner from "./asset_owner";
 
-export default class Entity extends Loadable {
+export default class Entity extends AssetOwner {
 
   constructor(assetPaths, startingXLoc, startingYLoc) {
     super(assetPaths);
@@ -16,8 +16,6 @@ export default class Entity extends Loadable {
     };
     this.destination = undefined;
   }
-
-  loadComplete() {}
 
   get image() {
     return Assets.get(this.assetPaths[0]);

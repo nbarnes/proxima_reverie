@@ -4,9 +4,10 @@
 import "./styles/index.css";
 
 import { Assets } from "./asset_manager";
+import Tile from "./tile";
 import Map from "./map";
 import Entity from "./entity";
-import { tileImagePaths, mobileSpritePath } from "./util";
+import { tileImagePaths, mobileSpritePaths } from "./util";
 import { Input } from "./input";
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -19,37 +20,49 @@ document.addEventListener("DOMContentLoaded", function() {
   viewport.width = viewportWidth;
   viewport.height = viewportHeight;
 
-  let tileWidth = 128, tileHeight = 64;
-
   let mapSize = 10;
 
-  let viewOffsetLimitX = (mapSize * tileWidth) - viewportWidth - mapSize;
-  let viewOffsetLimitY = (mapSize * tileHeight) - viewportHeight - mapSize;
+  // let viewOffsetLimitX = (mapSize * tileWidth) - viewportWidth - mapSize;
+  // let viewOffsetLimitY = (mapSize * tileHeight) - viewportHeight - mapSize;
 
-  let map = new Map(tileImagePaths, mapSize, tileWidth, tileHeight);
-  let mobile = new Entity(mobileSpritePath, viewportWidth / 2, viewportHeight / 2);
+  let tiles = [];
+  for (let tileImagePath of tileImagePaths) {
+    tiles.push(new Tile([tileImagePath]));
+  }
+  let map = new Map(tiles, mapSize);
+  let mobile = new Entity(mobileSpritePaths, viewportWidth / 2, viewportHeight / 2);
 
-  Assets.loadAssets([map, mobile], () => {
+  Assets.loadAssets([...tiles, mobile], () => {
 
     document.getElementById('loading-images-message').classList.add('hide');
     document.getElementById('images-loaded-message').classList.remove('hide');
 
     setTimeout(() => {
-      doTick(map);
+
+      let viewOffsetX = ((map.mapCanvas.width) / 2) - (viewportWidth / 2);
+      let viewOffsetY = ((map.mapCanvas.height) / 2) - (viewportHeight / 2);
+
+      doTick(map, viewOffsetX, viewOffsetY);
     }, 500);
 
   });
 
-  let viewOffsetX = ((mapSize * tileWidth - mapSize) / 2) - (viewportWidth / 2);
-  let viewOffsetY = ((mapSize * tileHeight - mapSize) / 2) - (viewportHeight / 2);
-
-  function doTick(map) {
+  function doTick(map, viewOffsetX, viewOffsetY) {
     // console.log('tick');
     viewportContext.clearRect(0, 0, viewportWidth, viewportHeight);
-    viewportContext.drawImage(map.mapImage, viewOffsetX, viewOffsetY, viewportWidth, viewportHeight, 0, 0, viewportWidth, viewportHeight);
+    viewportContext.drawImage(map.mapCanvas, viewOffsetX, viewOffsetY, viewportWidth, viewportHeight, 0, 0, viewportWidth, viewportHeight);
 
     let mouseEvent = Input.getMouseEvent();
     if (mouseEvent != undefined) {
+
+      console.log("");
+      console.log(`canvas position: ${mouseEvent.x}, ${mouseEvent.y}`);
+      let mapPosition = getCursorMapPosition(viewOffsetX, viewOffsetY, mouseEvent);
+      console.log(`map position: ${mapPosition.x}, ${mapPosition.y}`);
+      let tilePosition = getCursorTilePosition(map, mapPosition);
+      console.log(`tile position: ${tilePosition.x}, ${tilePosition.y}`);
+      console.log("");
+
       mobile.respondToMouse(mouseEvent);
     }
 
@@ -66,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
     Input.resetInputs();
 
     setTimeout(() => {
-      doTick(map);
+      doTick(map, viewOffsetX, viewOffsetY);
     }, 500);
 
   }
@@ -80,14 +93,29 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   viewport.addEventListener('mouseup', (event) => {
-    Input.mouseUp(getCursorPosition(viewport, event));
+    Input.mouseUp(getCursorCanvasPosition(viewport, event));
   });
 
-  function getCursorPosition(canvas, event) {
-    var rect = canvas.getBoundingClientRect();
-    var x = event.clientX - rect.left;
-    var y = event.clientY - rect.top;
-    return {x: x, y: y};
+  function getCursorCanvasPosition(canvas, position) {
+    let rect = canvas.getBoundingClientRect();
+    let x = position.clientX - rect.left;
+    let y = position.clientY - rect.top;
+    return { x: x, y: y };
+  }
+
+  function getCursorMapPosition(viewOffsetX, viewOffsetY, position) {
+    let mouseMapX = viewOffsetX + position.x;
+    let mouseMapY = viewOffsetY + position.y;
+    return { x: mouseMapX, y: mouseMapY };
+  }
+
+  function getCursorTilePosition(map, position) {
+    let halfTileWidth = map.tileWidth / 2;
+    let halfTileHeight = map.tileHeight / 2;
+    let halfMapSize = map.mapSize / 2;
+    let tileX = ((position.x / halfTileWidth  + position.y / halfTileHeight) / 2) - halfMapSize;
+    let tileY = ((position.y / halfTileHeight - position.x / halfTileWidth) / 2) + halfMapSize;
+    return { x: Math.floor(tileX), y: Math.floor(tileY) };
   }
 
 });

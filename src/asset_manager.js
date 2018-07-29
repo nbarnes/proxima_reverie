@@ -14,14 +14,12 @@ export const Assets = (function() {
 
     let assetsRemaining = assetPaths.length;
     for (let assetPath of assetPaths) {
+
       let asset = new Image();
       asset.onload = function() {
         assets[assetPath] = asset;
         assetsRemaining--;
         if (assetsRemaining <= 0) {
-          for (let assetOwner of assetOwners) {
-            assetOwner.loadComplete();
-          }
           callback();
         }
       };

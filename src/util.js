@@ -12,7 +12,7 @@ export const tileImagePaths = [
   './src/img/ground_tiles/stone.png'
 ];
 
-export const mobileSpritePath = [
+export const mobileSpritePaths = [
   './src/img/mobiles/8way_mobile.png'
 ]
 
