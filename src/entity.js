@@ -32,8 +32,13 @@ export default class Entity extends AssetOwner {
 
   respondToMouse(event) {
     if (event != undefined) {
-      let newDestination = this.mapCoordsWithFrameOffset(this.map.mapCoordsForTile({x: event.tileCoord.x, y: event.tileCoord.y}));
-      this.destination = {x: newDestination.x, y: newDestination.y};
+      let tileOffset = this.map.tileOffsets();
+      let frameOffset = { x: this.frameWidth / 2, y: this.frameHeight };
+      let mapDestination = this.map.mapCoordsForTile({x: event.tileCoord.x, y: event.tileCoord.y});
+      this.destination = {
+        x: mapDestination.x + tileOffset.x - frameOffset.x,
+        y: mapDestination.y + tileOffset.y - frameOffset.y,
+      }
     }
   }
 
@@ -63,8 +68,8 @@ export default class Entity extends AssetOwner {
   }
 
   mapCoordsWithFrameOffset(mapCoords) {
-    // return {x: mapCoords.x - (this.frameWidth / 2), y: mapCoords.y - (this.frameHeight)};
-    return {x: mapCoords.x, y: mapCoords.y};
+    return {x: mapCoords.x - (this.frameWidth / 2), y: mapCoords.y - (this.frameHeight)};
+    // return {x: mapCoords.x, y: mapCoords.y};
   }
 
 }

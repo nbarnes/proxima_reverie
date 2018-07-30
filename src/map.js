@@ -27,6 +27,10 @@ export default class Map {
     return {x: mapX, y: mapY};
   }
 
+  tileOffsets() {
+    return { x: this.tileWidth / 2, y: this.tileHeight / 2 };
+  }
+
 };
 
 function buildMapDef(map) {
