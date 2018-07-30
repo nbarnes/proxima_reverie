@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
   console.log("Proxma Reverie approaches!");
 
+  let tickLength = 50;
+
   var viewport = document.getElementById('viewport-canvas');
   var viewportContext = viewport.getContext('2d');
   let viewportWidth = 600, viewportHeight = 400;
@@ -30,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function() {
     tiles.push(new Tile([tileImagePath]));
   }
   let map = new Map(tiles, mapSize);
-  let mobile = new Entity(mobileSpritePaths, viewportWidth / 2, viewportHeight / 2);
+  let mobile = new Entity(mobileSpritePaths, map, viewportWidth / 2, viewportHeight / 2);
 
   Assets.loadAssets([...tiles, mobile], () => {
 
@@ -43,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function() {
       let viewOffsetY = ((map.mapCanvas.height) / 2) - (viewportHeight / 2);
 
       doTick(map, viewOffsetX, viewOffsetY);
-    }, 500);
+    }, tickLength);
 
   });
 
@@ -55,24 +57,25 @@ document.addEventListener("DOMContentLoaded", function() {
     let mouseEvent = Input.getMouseEvent();
     if (mouseEvent != undefined) {
 
-      console.log("");
-      console.log(`canvas position: ${mouseEvent.x}, ${mouseEvent.y}`);
       let mapPosition = getCursorMapPosition(viewOffsetX, viewOffsetY, mouseEvent);
-      console.log(`map position: ${mapPosition.x}, ${mapPosition.y}`);
       let tilePosition = getCursorTilePosition(map, mapPosition);
-      console.log(`tile position: ${tilePosition.x}, ${tilePosition.y}`);
-      console.log("");
+      // console.log("");
+      // console.log(`canvas position: ${mouseEvent.x}, ${mouseEvent.y}`);
+      // console.log(`map position: ${mapPosition.x}, ${mapPosition.y}`);
+      // console.log(`tile position: ${tilePosition.x}, ${tilePosition.y}`);
+      // console.log("");
 
-      mobile.respondToMouse(mouseEvent);
+      mobile.respondToMouse({mapCoord: mapPosition, tileCoord: tilePosition});
     }
 
     mobile.tick();
-
+    // console.log(mobile.location);
     viewportContext.drawImage(
       mobile.image,
       mobile.frameXOrigin, mobile.frameYOrigin,
       mobile.frameWidth, mobile.frameHeight,
-      mobile.location.x, mobile.location.y,
+      (mobile.location.x - viewOffsetX),
+      (mobile.location.y - viewOffsetY),
       mobile.frameWidth, mobile.frameHeight
     );
 
@@ -80,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     setTimeout(() => {
       doTick(map, viewOffsetX, viewOffsetY);
-    }, 500);
+    }, tickLength);
 
   }
 

@@ -20,6 +20,13 @@ export default class Map {
     return this.myMapCanvas;
   }
 
+  mapCoordsForTile(tileCoords) {
+    let xOffset = ((this.mapSize * this.tileWidth) / 2) - (this.tileWidth / 2);
+    let mapX = ((tileCoords.x - tileCoords.y) * (this.tileWidth / 2)) + xOffset;
+    let mapY = (tileCoords.x + tileCoords.y) * (this.tileHeight / 2);
+    return {x: mapX, y: mapY};
+  }
+
 };
 
 function buildMapDef(map) {
@@ -34,7 +41,6 @@ function buildMapDef(map) {
 }
 
 function drawMapCanvas(map) {
-  console.log('bob');
   let mapCanvas = document.createElement("canvas");
   mapCanvas.width = map.mapSize * map.tileWidth - map.mapSize;
   mapCanvas.height = map.mapSize * map.tileHeight - map.mapSize;
@@ -48,8 +54,7 @@ function drawMapCanvas(map) {
 }
 
 function drawTile(map, context, tile, mapX, mapY) {
-  let xOffset = ((map.mapSize * map.tileWidth) / 2) - (map.tileWidth / 2);
-  let contextX = ((mapX - mapY) * (map.tileWidth / 2)) - mapX + xOffset;
-  let contextY = (mapX + mapY) * (map.tileHeight / 2) - mapY;
-  context.drawImage(tile.img, contextX, contextY, map.tileWidth, map.tileHeight);
+  let contextCoords = map.mapCoordsForTile({x: mapX, y: mapY});
+  context.drawImage(tile.img, contextCoords.x, contextCoords.y, map.tileWidth, map.tileHeight);
 }
+
