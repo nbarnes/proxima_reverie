@@ -1,20 +1,21 @@
+'use strict';
 
-"use strict";
-
-import { Assets } from "./asset_manager";
-import AssetOwner from "./asset_owner";
+import { Assets } from './asset_manager';
+import AssetOwner from './asset_owner';
+import { coordsEqual } from './util';
 
 export default class Entity extends AssetOwner {
-
-  constructor(assetPaths, map, startingXLoc, startingYLoc) {
+  constructor(assetPaths, map, startingTile) {
     super(assetPaths);
     this.frameWidth = 60;
     this.frameHeight = 110;
     this.map = map;
-    this.location = {
-      x: ((startingXLoc === undefined) ? 0 : startingXLoc),
-      y: ((startingYLoc === undefined) ? 0 : startingYLoc)
+    this.currentTile = {
+      x: startingTile === undefined ? 0 : startingTile.x,
+      y: startingTile === undefined ? 0 : startingTile.y
     };
+    this.location = this.findMapPositionForTile(startingTile);
+    this.tilePath = [];
     this.destination = undefined;
   }
 
@@ -31,45 +32,77 @@ export default class Entity extends AssetOwner {
   }
 
   respondToMouse(event) {
-    if (event != undefined) {
-      let tileOffset = this.map.tileOffsets();
-      let frameOffset = { x: this.frameWidth / 2, y: this.frameHeight };
-      let mapDestination = this.map.mapCoordsForTile({x: event.tileCoord.x, y: event.tileCoord.y});
-      this.destination = {
-        x: mapDestination.x + tileOffset.x - frameOffset.x,
-        y: mapDestination.y + tileOffset.y - frameOffset.y,
-      }
+    if (event != undefined && event.tileCoords != undefined) {
+      this.tilePath = buildTilePath(this.currentTile, event.tileCoords);
+      this.updateDestination();
     }
   }
 
   tick() {
     if (this.destination != undefined) {
-      let dx = this.location.x - this.destination.x, dy = this.location.y - this.destination.y;
-      let dist = Math.sqrt(dx*dx+dy*dy);
-
-      if (dist != 0) {
-        let velX = ( dx / dist ) * 5;
-        let velY = ( dy / dist ) * 5;
-
-        if (Math.abs(dx) < Math.abs(velX)) {
-          velX = dx;
-        }
-        if (Math.abs(dy) < Math.abs(velY)) {
-          velY = dy;
-        }
-
-        this.location.x -= velX;
-        this.location.y -= velY;
-      } else {
-        this.destination = undefined;
+      let dx = this.location.x - this.destination.x,
+        dy = this.location.y - this.destination.y;
+      let dist = Math.sqrt(dx * dx + dy * dy);
+      let velX = (dx / dist) * 5;
+      let velY = (dy / dist) * 5;
+      if (Math.abs(dx) < Math.abs(velX)) {
+        velX = dx;
       }
-
+      if (Math.abs(dy) < Math.abs(velY)) {
+        velY = dy;
+      }
+      this.location.x -= velX;
+      this.location.y -= velY;
+      if (coordsEqual(this.location, this.destination)) {
+        this.currentTile = this.tilePath.shift();
+        this.updateDestination();
+      }
     }
   }
 
-  mapCoordsWithFrameOffset(mapCoords) {
-    return {x: mapCoords.x - (this.frameWidth / 2), y: mapCoords.y - (this.frameHeight)};
-    // return {x: mapCoords.x, y: mapCoords.y};
+  updateDestination() {
+    let nextTileDestination = this.tilePath[0];
+    if (nextTileDestination != undefined) {
+      this.destination = this.findMapPositionForTile(nextTileDestination);
+    } else {
+      this.destination = undefined;
+    }
   }
 
+  findMapPositionForTile(tile) {
+    let mapDestination = this.map.mapCoordsForTile({ x: tile.x, y: tile.y });
+    let tileOffset = this.map.tileOffsets();
+    let frameOffset = { x: this.frameWidth / 2, y: this.frameHeight };
+    return {
+      x: mapDestination.x + tileOffset.x - frameOffset.x,
+      y: mapDestination.y + tileOffset.y - frameOffset.y
+    };
+  }
+}
+
+// Uses Brensenham's line algorithm
+function buildTilePath(start, end) {
+  let path = [];
+
+  let currentX = start.x,
+    currentY = start.y;
+  let deltaX = Math.abs(end.x - start.x),
+    deltaY = Math.abs(end.y - start.y);
+  let slopeX = start.x < end.x ? 1 : -1,
+    slopeY = start.y < end.y ? 1 : -1;
+  let err = deltaX - deltaY;
+
+  while (currentX != end.x || currentY != end.y) {
+    let err2 = 2 * err;
+    if (err2 > deltaY * -1) {
+      err -= deltaY;
+      currentX += slopeX;
+    }
+    if (err2 < deltaX) {
+      err += deltaX;
+      currentY += slopeY;
+    }
+    path.push({ x: currentX, y: currentY });
+  }
+  return path;
 }

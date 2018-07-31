@@ -1,5 +1,4 @@
-
-"use strict";
+'use strict';
 
 export const tileImagePaths = [
   './src/img/ground_tiles/brickpavers2.png',
@@ -12,10 +11,12 @@ export const tileImagePaths = [
   './src/img/ground_tiles/stone.png'
 ];
 
-export const mobileSpritePaths = [
-  './src/img/mobiles/8way_mobile.png'
-]
+export const mobileSpritePaths = ['./src/img/mobiles/8way_mobile.png'];
 
-export const rand = (max) => {
+export const rand = max => {
   return Math.floor(Math.random() * Math.floor(max));
-}
+};
+
+export const coordsEqual = (a, b) => {
+  return a.x == b.x && a.y == b.y;
+};
