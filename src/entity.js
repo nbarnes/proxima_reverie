@@ -97,8 +97,7 @@ function buildTilePath(start, end) {
     if (err2 > deltaY * -1) {
       err -= deltaY;
       currentX += slopeX;
-    }
-    if (err2 < deltaX) {
+    } else if (err2 < deltaX) {
       err += deltaX;
       currentY += slopeY;
     }
