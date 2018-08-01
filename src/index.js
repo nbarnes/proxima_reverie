@@ -6,7 +6,7 @@ import { Assets } from './asset_manager';
 import Tile from './tile';
 import Map from './map';
 import Entity from './entity';
-import { tileImagePaths, mobileSpritePaths } from './util';
+import { tileImagePaths, mobileDefs } from './util';
 import { Input } from './input';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -23,20 +23,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
   let mapSize = 10;
 
-  // let viewOffsetLimitX = (mapSize * tileWidth) - viewportWidth - mapSize;
-  // let viewOffsetLimitY = (mapSize * tileHeight) - viewportHeight - mapSize;
-
-  let tiles = [];
-  for (let tileImagePath of tileImagePaths) {
-    tiles.push(new Tile([tileImagePath]));
-  }
-  let map = new Map(tiles, mapSize);
-  let mobile = new Entity(mobileSpritePaths, map, {
-    x: Math.floor(mapSize / 2),
-    y: Math.floor(mapSize / 2)
+  let tiles = tileImagePaths.map(tileImagePath => {
+    return new Tile([tileImagePath]);
   });
 
-  Assets.loadAssets([...tiles, mobile], () => {
+  let map = new Map(tiles, mapSize);
+
+  let mobiles = mobileDefs.map(mobileDef => {
+    return new Entity(mobileDef, map);
+  });
+
+  console.log(mobiles);
+
+  Assets.loadAssets([...tiles, ...mobiles], () => {
     document.getElementById('loading-images-message').classList.add('hide');
     document.getElementById('images-loaded-message').classList.remove('hide');
 
@@ -50,18 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function doTick(map, viewOffsetX, viewOffsetY) {
     // console.log('tick');
-    viewportContext.clearRect(0, 0, viewportWidth, viewportHeight);
-    viewportContext.drawImage(
-      map.mapCanvas,
-      viewOffsetX,
-      viewOffsetY,
-      viewportWidth,
-      viewportHeight,
-      0,
-      0,
-      viewportWidth,
-      viewportHeight
-    );
 
     let mouseEvent = Input.getMouseEvent();
     if (mouseEvent != undefined) {
@@ -77,24 +64,44 @@ document.addEventListener('DOMContentLoaded', function() {
       // console.log(`tile position: ${tilePosition.x}, ${tilePosition.y}`);
       // console.log("");
 
-      mobile.respondToMouse({
-        mapCoord: mapPosition,
-        tileCoords: tilePosition
+      mobiles.forEach(mobile => {
+        mobile.respondToMouse({
+          mapCoord: mapPosition,
+          tileCoords: tilePosition
+        });
       });
     }
 
-    mobile.tick();
+    mobiles.forEach(mobile => {
+      mobile.tick();
+    });
+
+    viewportContext.clearRect(0, 0, viewportWidth, viewportHeight);
     viewportContext.drawImage(
-      mobile.image,
-      mobile.frameXOrigin,
-      mobile.frameYOrigin,
-      mobile.frameWidth,
-      mobile.frameHeight,
-      mobile.location.x - viewOffsetX,
-      mobile.location.y - viewOffsetY,
-      mobile.frameWidth,
-      mobile.frameHeight
+      map.mapCanvas,
+      viewOffsetX,
+      viewOffsetY,
+      viewportWidth,
+      viewportHeight,
+      0,
+      0,
+      viewportWidth,
+      viewportHeight
     );
+
+    mobiles.forEach(mobile => {
+      viewportContext.drawImage(
+        mobile.image,
+        mobile.frameXOrigin,
+        mobile.frameYOrigin,
+        mobile.frameWidth,
+        mobile.frameHeight,
+        mobile.location.x - viewOffsetX,
+        mobile.location.y - viewOffsetY,
+        mobile.frameWidth,
+        mobile.frameHeight
+      );
+    });
 
     Input.resetInputs();
 

@@ -1,20 +1,17 @@
-
-"use strict";
+'use strict';
 
 export const Assets = (function() {
-
   let assets = {};
 
   function loadAssets(assetOwners, callback) {
-    let tempAssetPaths = []
+    let tempAssetPaths = [];
     for (let assetOwner of assetOwners) {
       tempAssetPaths = tempAssetPaths.concat(assetOwner.assetPaths);
     }
-    let assetPaths = [... new Set(tempAssetPaths)];
+    let assetPaths = [...new Set(tempAssetPaths)];
 
     let assetsRemaining = assetPaths.length;
     for (let assetPath of assetPaths) {
-
       let asset = new Image();
       asset.onload = function() {
         assets[assetPath] = asset;
@@ -34,6 +31,5 @@ export const Assets = (function() {
   return {
     loadAssets: loadAssets,
     get: get
-  }
-
+  };
 })();

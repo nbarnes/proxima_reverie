@@ -11,6 +11,21 @@ export const tileImagePaths = [
   './src/img/ground_tiles/stone.png'
 ];
 
+export const mobileDefs = [
+  {
+    imagePaths: ['./src/img/mobiles/8way_mobile.png'],
+    startTile: { x: 3, y: 3 }
+  },
+  {
+    imagePaths: ['./src/img/mobiles/8way_mobile.png'],
+    startTile: { x: 5, y: 4 }
+  },
+  {
+    imagePaths: ['./src/img/mobiles/8way_mobile.png'],
+    startTile: { x: 3, y: 6 }
+  }
+];
+
 export const mobileSpritePaths = ['./src/img/mobiles/8way_mobile.png'];
 
 export const rand = max => {

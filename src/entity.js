@@ -5,16 +5,16 @@ import AssetOwner from './asset_owner';
 import { coordsEqual } from './util';
 
 export default class Entity extends AssetOwner {
-  constructor(assetPaths, map, startingTile) {
-    super(assetPaths);
+  constructor(entityDef, map) {
+    super(entityDef.imagePaths);
     this.frameWidth = 60;
     this.frameHeight = 110;
     this.map = map;
     this.currentTile = {
-      x: startingTile === undefined ? 0 : startingTile.x,
-      y: startingTile === undefined ? 0 : startingTile.y
+      x: entityDef.startTile === undefined ? 0 : entityDef.startTile.x,
+      y: entityDef.startTile === undefined ? 0 : entityDef.startTile.y
     };
-    this.location = this.findMapPositionForTile(startingTile);
+    this.location = this.findMapPositionForTile(this.currentTile);
     this.tilePath = [];
     this.destination = undefined;
   }
