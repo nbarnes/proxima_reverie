@@ -29,6 +29,8 @@ export default class Scene {
       };
       loadCompleteCallback();
     });
+
+    this.waitingOnAnimation = false;
   }
 
   tick() {
@@ -46,15 +48,18 @@ export default class Scene {
       );
       let tilePosition = getCursorTilePosition(this.map, eventMapPosition);
 
-      this.activeMobile.respondToMouse(tilePosition);
+      if (!this.waitingOnAnimation) {
+        this.activeMobile.respondToMouse(tilePosition, shouldWait => {
+          this.waitingOnAnimation = shouldWait;
+        });
 
-      if (this.mobiles.slice(-1)[0] == this.activeMobile) {
-        console.log('bob');
-        this.activeMobile = this.mobiles[0];
-      } else {
-        this.activeMobile = this.mobiles[
-          this.mobiles.indexOf(this.activeMobile) + 1
-        ];
+        if (this.mobiles.slice(-1)[0] == this.activeMobile) {
+          this.activeMobile = this.mobiles[0];
+        } else {
+          this.activeMobile = this.mobiles[
+            this.mobiles.indexOf(this.activeMobile) + 1
+          ];
+        }
       }
     }
 

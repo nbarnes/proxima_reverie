@@ -31,10 +31,12 @@ export default class Entity extends AssetOwner {
     return 0;
   }
 
-  respondToMouse(eventTile) {
+  respondToMouse(eventTile, blockingAnimationCallback) {
     if (eventTile != undefined) {
       this.tilePath = buildTilePath(this.currentTile, eventTile);
       this.updateDestination();
+      blockingAnimationCallback(true);
+      this.blockingAnimationCallback = blockingAnimationCallback;
     }
   }
 
@@ -66,6 +68,7 @@ export default class Entity extends AssetOwner {
       this.destination = this.findMapPositionForTile(nextTileDestination);
     } else {
       this.destination = undefined;
+      this.blockingAnimationCallback(false);
     }
   }
 
