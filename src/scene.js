@@ -17,6 +17,7 @@ export default class Scene {
     this.mobiles = sceneDef.mobileDefs.map(mobileDef => {
       return new Entity(mobileDef, this.map);
     });
+    this.activeMobile = this.mobiles[0];
 
     this.viewport = viewport;
     this.viewportDimensions = viewportDimensions;
@@ -44,15 +45,17 @@ export default class Scene {
         eventViewportPosition
       );
       let tilePosition = getCursorTilePosition(this.map, eventMapPosition);
-      // console.log("");
-      // console.log(`canvas position: ${mouseEvent.x}, ${mouseEvent.y}`);
-      // console.log(`map position: ${mapPosition.x}, ${mapPosition.y}`);
-      // console.log(`tile position: ${tilePosition.x}, ${tilePosition.y}`);
-      // console.log("");
 
-      this.mobiles.forEach(mobile => {
-        mobile.respondToMouse(tilePosition);
-      });
+      this.activeMobile.respondToMouse(tilePosition);
+
+      if (this.mobiles.slice(-1)[0] == this.activeMobile) {
+        console.log('bob');
+        this.activeMobile = this.mobiles[0];
+      } else {
+        this.activeMobile = this.mobiles[
+          this.mobiles.indexOf(this.activeMobile) + 1
+        ];
+      }
     }
 
     this.mobiles.forEach(mobile => {
