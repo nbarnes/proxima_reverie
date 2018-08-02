@@ -14,15 +14,15 @@ export default class Scene {
 
     this.map = new Map(tiles, sceneDef.mapDef.mapSize);
 
-    this.mobiles = sceneDef.mobileDefs.map(mobileDef => {
-      return new Entity(mobileDef, this.map);
+    this.entities = sceneDef.entityDefs.map(entityDef => {
+      return new Entity(entityDef, this.map);
     });
-    this.activeMobile = this.mobiles[0];
+    this.activeEntity = this.entities[0];
 
     this.viewport = viewport;
     this.viewportDimensions = viewportDimensions;
 
-    Assets.loadAssets([...tiles, ...this.mobiles], () => {
+    Assets.loadAssets([...tiles, ...this.entities], () => {
       this.viewportOffsetDimensions = {
         x: this.map.mapCanvas.width / 2 - viewportDimensions.x / 2,
         y: this.map.mapCanvas.height / 2 - viewportDimensions.y / 2
@@ -49,22 +49,22 @@ export default class Scene {
       let tilePosition = getCursorTilePosition(this.map, eventMapPosition);
 
       if (!this.waitingOnAnimation) {
-        this.activeMobile.respondToMouse(tilePosition, shouldWait => {
+        this.activeEntity.respondToMouse(tilePosition, shouldWait => {
           this.waitingOnAnimation = shouldWait;
         });
 
-        if (this.mobiles.slice(-1)[0] == this.activeMobile) {
-          this.activeMobile = this.mobiles[0];
+        if (this.entities.slice(-1)[0] == this.activeEntity) {
+          this.activeEntity = this.entities[0];
         } else {
-          this.activeMobile = this.mobiles[
-            this.mobiles.indexOf(this.activeMobile) + 1
+          this.activeEntity = this.entities[
+            this.entities.indexOf(this.activeEntity) + 1
           ];
         }
       }
     }
 
-    this.mobiles.forEach(mobile => {
-      mobile.tick();
+    this.entities.forEach(entity => {
+      entity.tick();
     });
 
     let context = this.viewport.getContext('2d');
@@ -86,17 +86,17 @@ export default class Scene {
       this.viewportDimensions.y
     );
 
-    this.mobiles.forEach(mobile => {
+    this.entities.forEach(entity => {
       context.drawImage(
-        mobile.image,
-        mobile.frameXOrigin,
-        mobile.frameYOrigin,
-        mobile.frameWidth,
-        mobile.frameHeight,
-        mobile.location.x - this.viewportOffsetDimensions.x,
-        mobile.location.y - this.viewportOffsetDimensions.y,
-        mobile.frameWidth,
-        mobile.frameHeight
+        entity.image,
+        entity.frameXOrigin,
+        entity.frameYOrigin,
+        entity.frameWidth,
+        entity.frameHeight,
+        entity.location.x - this.viewportOffsetDimensions.x,
+        entity.location.y - this.viewportOffsetDimensions.y,
+        entity.frameWidth,
+        entity.frameHeight
       );
     });
 

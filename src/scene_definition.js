@@ -14,7 +14,7 @@ export const sceneDef = {
       './src/img/ground_tiles/stone.png'
     ]
   },
-  mobileDefs: [
+  entityDefs: [
     {
       imagePaths: ['./src/img/mobiles/8way_mobile.png'],
       startTile: { x: 3, y: 3 }
