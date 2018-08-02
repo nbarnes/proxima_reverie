@@ -31,9 +31,9 @@ export default class Entity extends AssetOwner {
     return 0;
   }
 
-  respondToMouse(event) {
-    if (event != undefined && event.tileCoords != undefined) {
-      this.tilePath = buildTilePath(this.currentTile, event.tileCoords);
+  respondToMouse(eventTile) {
+    if (eventTile != undefined) {
+      this.tilePath = buildTilePath(this.currentTile, eventTile);
       this.updateDestination();
     }
   }

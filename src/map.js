@@ -1,10 +1,8 @@
+'use strict';
 
-"use strict";
-
-import { rand } from "./util";
+import { rand } from './util';
 
 export default class Map {
-
   constructor(tiles, mapSize) {
     this.tiles = tiles;
     this.mapSize = mapSize;
@@ -21,17 +19,16 @@ export default class Map {
   }
 
   mapCoordsForTile(tileCoords) {
-    let xOffset = ((this.mapSize * this.tileWidth) / 2) - (this.tileWidth / 2);
-    let mapX = ((tileCoords.x - tileCoords.y) * (this.tileWidth / 2)) + xOffset;
+    let xOffset = (this.mapSize * this.tileWidth) / 2 - this.tileWidth / 2;
+    let mapX = (tileCoords.x - tileCoords.y) * (this.tileWidth / 2) + xOffset;
     let mapY = (tileCoords.x + tileCoords.y) * (this.tileHeight / 2);
-    return {x: mapX, y: mapY};
+    return { x: mapX, y: mapY };
   }
 
   tileOffsets() {
     return { x: this.tileWidth / 2, y: this.tileHeight / 2 };
   }
-
-};
+}
 
 function buildMapDef(map) {
   let mapDef = [];
@@ -45,20 +42,25 @@ function buildMapDef(map) {
 }
 
 function drawMapCanvas(map) {
-  let mapCanvas = document.createElement("canvas");
+  let mapCanvas = document.createElement('canvas');
   mapCanvas.width = map.mapSize * map.tileWidth - map.mapSize;
   mapCanvas.height = map.mapSize * map.tileHeight - map.mapSize;
 
   for (let [x, row] of map.mapDef.entries()) {
     for (let [y, tile] of row.entries()) {
-      drawTile(map, mapCanvas.getContext("2d"), tile, x, y);
+      drawTile(map, mapCanvas.getContext('2d'), tile, x, y);
     }
   }
   return mapCanvas;
 }
 
 function drawTile(map, context, tile, mapX, mapY) {
-  let contextCoords = map.mapCoordsForTile({x: mapX, y: mapY});
-  context.drawImage(tile.img, contextCoords.x, contextCoords.y, map.tileWidth, map.tileHeight);
+  let contextCoords = map.mapCoordsForTile({ x: mapX, y: mapY });
+  context.drawImage(
+    tile.img,
+    contextCoords.x,
+    contextCoords.y,
+    map.tileWidth,
+    map.tileHeight
+  );
 }
-

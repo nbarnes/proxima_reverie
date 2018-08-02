@@ -1,11 +1,9 @@
-
-"use strict";
+'use strict';
 
 export const Input = (function() {
-
   let keysDown = [];
   let keysPressed = [];
-  let mouseEventPoint = undefined;
+  let mouseEvent = undefined;
 
   function keyDown(keyCode) {
     if (keysPressed.indexOf(keyCode) < 0) {
@@ -17,28 +15,30 @@ export const Input = (function() {
   }
 
   function keyUp(keyCode) {
-    keysDown = keysDown.filter( (element) => {
+    keysDown = keysDown.filter(element => {
       return element != keyCode;
     });
   }
 
   function getKeysPressed() {
-    return keysDown.concat(keysPressed.filter( (key) => {
-      return keysDown.indexOf(key) < 0;
-    }));
+    return keysDown.concat(
+      keysPressed.filter(key => {
+        return keysDown.indexOf(key) < 0;
+      })
+    );
   }
 
-  function mouseUp(point) {
-    mouseEventPoint = point;
+  function mouseUp(event) {
+    mouseEvent = event;
   }
 
   function getMouseEvent() {
-    return mouseEventPoint;
+    return mouseEvent;
   }
 
   function resetInputs() {
     keysPressed = [];
-    mouseEventPoint = undefined;
+    mouseEvent = undefined;
   }
 
   return {
@@ -48,6 +48,5 @@ export const Input = (function() {
     mouseUp: mouseUp,
     getMouseEvent: getMouseEvent,
     resetInputs: resetInputs
-  }
-
+  };
 })();
