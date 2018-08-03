@@ -5,6 +5,7 @@ import Map from './map';
 import Entity from './entity';
 import { Assets } from './asset_manager';
 import { Input } from './input';
+import { MobileBrain } from './brain';
 
 export default class Scene {
   constructor(sceneDef, viewport, viewportDimensions, loadCompleteCallback) {
@@ -15,7 +16,7 @@ export default class Scene {
     this.map = new Map(tiles, sceneDef.mapDef.mapSize);
 
     this.entities = sceneDef.entityDefs.map(entityDef => {
-      return new Entity(entityDef, this.map);
+      return new Entity(entityDef, this.map, new MobileBrain());
     });
     this.activeEntity = this.entities[0];
 
