@@ -27,8 +27,9 @@ export class MobileBrain {
 }
 
 function getNextMapPosition(entity, destination) {
-  let dx = entity.location.x - destination.x,
-    dy = entity.location.y - destination.y;
+  let currentLoc = { x: entity.location.x, y: entity.location.y };
+  let dx = currentLoc.x - destination.x,
+    dy = currentLoc.y - destination.y;
   let dist = Math.sqrt(dx * dx + dy * dy);
   let velX = (dx / dist) * 5;
   let velY = (dy / dist) * 5;
@@ -38,8 +39,10 @@ function getNextMapPosition(entity, destination) {
   if (Math.abs(dy) < Math.abs(velY)) {
     velY = dy;
   }
-
-  return { x: (entity.location.x -= velX), y: (entity.location.y -= velY) };
+  return {
+    x: (currentLoc.x -= velX),
+    y: (currentLoc.y -= velY)
+  };
 }
 
 function getDestination(entity, tilePath) {
