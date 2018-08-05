@@ -22,3 +22,10 @@ export const entityMapLocationFromTile = (
     y: mapDestination.y + tileOffset.y - frameOffset.y
   };
 };
+
+export const Facing = {
+  SOUTHEAST: 7,
+  SOUTHWEST: 1,
+  NORTHWEST: 3,
+  NORTHEAST: 5
+};

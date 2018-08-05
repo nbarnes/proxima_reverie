@@ -35,8 +35,6 @@ export default class Scene {
   }
 
   tick() {
-    // console.log('tick');
-
     let mouseEvent = Input.getMouseEvent();
     if (mouseEvent != undefined) {
       let eventViewportPosition = getEventViewportPosition(
