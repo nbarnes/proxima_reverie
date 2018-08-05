@@ -17,6 +17,7 @@ export class MobileBrain {
           destination = undefined;
         }
       } else if (tilePath.length > 0) {
+        entity.currentTile = tilePath[0];
         destination = getDestination(entity, tilePath);
       } else {
         entity.activityDone();
@@ -71,7 +72,6 @@ function buildTilePath(start, end) {
     slopeY = start.y < end.y ? 1 : -1;
   let err = deltaX - deltaY;
 
-  let insanity = 0;
   while (currentX != end.x || currentY != end.y) {
     let err2 = 2 * err;
     if (err2 > deltaY * -1) {
