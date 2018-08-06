@@ -53,8 +53,7 @@ function getDestination(entity, tilePath) {
     nextDestination = entityMapLocationFromTile(
       nextTileDestination,
       entity.map,
-      entity.frameWidth,
-      entity.frameHeight
+      entity.frameOffsets
     );
   }
   return nextDestination;

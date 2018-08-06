@@ -5,34 +5,25 @@ import AssetOwner from './asset_owner';
 import { entityMapLocationFromTile, Facing } from './util';
 
 export default class Entity extends AssetOwner {
-  constructor(entityDef, map, brain, facing) {
+  constructor(entityDef, map, brain) {
     super(entityDef.imagePaths);
-    this.frameWidth = 60;
-    this.frameHeight = 110;
+    this.frameSize = entityDef.frameSize;
+    this.frameOffsets = entityDef.frameOffsets || { x: 0, y: 0 };
     this.map = map;
     this.currentTile = entityDef.startTile || { x: 0, y: 0 };
     this.myLocation = entityMapLocationFromTile(
       this.currentTile,
       this.map,
-      this.frameWidth,
-      this.frameHeight
+      this.frameOffsets
     );
     this.tilePath = [];
     this.brain = brain;
     this.destination = undefined;
-    this.facing = facing || Facing.SOUTHEAST;
+    this.facing = entityDef.facing;
   }
 
   get image() {
     return Assets.get(this.assetPaths[0]);
-  }
-
-  get frameXOrigin() {
-    return 0;
-  }
-
-  get frameYOrigin() {
-    return 0;
   }
 
   get location() {
@@ -69,14 +60,6 @@ export default class Entity extends AssetOwner {
     }
     this.facing = newFacing;
     this.myLocation = newLocation;
-  }
-
-  get frameXOrigin() {
-    return this.frameWidth * this.facing;
-  }
-
-  get frameYOrigin() {
-    return 0;
   }
 
   respondToMouse(eventTile, blockingAnimationCallback) {

@@ -15,15 +15,18 @@ export default class Scene {
 
     this.map = new Map(tiles, sceneDef.mapDef.mapSize);
 
-    this.entities = sceneDef.entityDefs.map(entityDef => {
-      return new Entity(entityDef, this.map, new MobileBrain());
+    this.mobiles = sceneDef.mobileDefs.map(mobileDef => {
+      return new Entity(mobileDef, this.map, new MobileBrain());
     });
-    this.activeEntity = this.entities[0];
+    this.activeMobile = this.mobiles[0];
+    this.props = sceneDef.propDefs.map(propDef => {
+      return new Entity(propDef, this.map);
+    });
 
     this.viewport = viewport;
     this.viewportDimensions = viewportDimensions;
 
-    Assets.loadAssets([...tiles, ...this.entities], () => {
+    Assets.loadAssets([...tiles, ...this.mobiles, ...this.props], () => {
       this.viewportOffsetDimensions = {
         x: this.map.mapCanvas.width / 2 - viewportDimensions.x / 2,
         y: this.map.mapCanvas.height / 2 - viewportDimensions.y / 2
@@ -48,22 +51,25 @@ export default class Scene {
       let tilePosition = getCursorTilePosition(this.map, eventMapPosition);
 
       if (!this.waitingOnAnimation) {
-        this.activeEntity.respondToMouse(tilePosition, shouldWait => {
+        this.activeMobile.respondToMouse(tilePosition, shouldWait => {
           this.waitingOnAnimation = shouldWait;
         });
 
-        if (this.entities.slice(-1)[0] == this.activeEntity) {
-          this.activeEntity = this.entities[0];
+        if (this.mobiles.slice(-1)[0] == this.activeMobile) {
+          this.activeMobile = this.mobiles[0];
         } else {
-          this.activeEntity = this.entities[
-            this.entities.indexOf(this.activeEntity) + 1
+          this.activeMobile = this.mobiles[
+            this.mobiles.indexOf(this.activeMobile) + 1
           ];
         }
       }
     }
 
-    this.entities.forEach(entity => {
-      entity.tick();
+    this.mobiles.forEach(mobile => {
+      mobile.tick();
+    });
+    this.props.forEach(prop => {
+      prop.tick();
     });
 
     let context = this.viewport.getContext('2d');
@@ -85,17 +91,31 @@ export default class Scene {
       this.viewportDimensions.y
     );
 
-    this.entities.forEach(entity => {
+    this.mobiles.forEach(mobile => {
       context.drawImage(
-        entity.image,
-        entity.frameXOrigin,
-        entity.frameYOrigin,
-        entity.frameWidth,
-        entity.frameHeight,
-        entity.location.x - this.viewportOffsetDimensions.x,
-        entity.location.y - this.viewportOffsetDimensions.y,
-        entity.frameWidth,
-        entity.frameHeight
+        mobile.image,
+        0,
+        0,
+        mobile.frameSize.width,
+        mobile.frameSize.height,
+        mobile.location.x - this.viewportOffsetDimensions.x,
+        mobile.location.y - this.viewportOffsetDimensions.y,
+        mobile.frameSize.width,
+        mobile.frameSize.height
+      );
+    });
+
+    this.props.forEach(prop => {
+      context.drawImage(
+        prop.image,
+        0,
+        0,
+        prop.frameSize.width,
+        prop.frameSize.height,
+        prop.location.x - this.viewportOffsetDimensions.x,
+        prop.location.y - this.viewportOffsetDimensions.y,
+        prop.frameSize.width,
+        prop.frameSize.height
       );
     });
 
