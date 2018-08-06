@@ -62,6 +62,17 @@ export default class Entity extends AssetOwner {
     this.myLocation = newLocation;
   }
 
+  get frameXOrigin() {
+    if (this.facing != undefined) {
+      return this.facing * this.frameSize.width;
+    }
+    return 0;
+  }
+
+  get frameYOrigin() {
+    return 0;
+  }
+
   respondToMouse(eventTile, blockingAnimationCallback) {
     if (this.activity == undefined) {
       this.activity = this.brain.getActivity(

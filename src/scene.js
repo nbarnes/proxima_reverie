@@ -94,8 +94,8 @@ export default class Scene {
     this.mobiles.forEach(mobile => {
       context.drawImage(
         mobile.image,
-        0,
-        0,
+        mobile.frameXOrigin,
+        mobile.frameYOrigin,
         mobile.frameSize.width,
         mobile.frameSize.height,
         mobile.location.x - this.viewportOffsetDimensions.x,
@@ -108,8 +108,8 @@ export default class Scene {
     this.props.forEach(prop => {
       context.drawImage(
         prop.image,
-        0,
-        0,
+        prop.frameXOrigin,
+        prop.frameYOrigin,
         prop.frameSize.width,
         prop.frameSize.height,
         prop.location.x - this.viewportOffsetDimensions.x,
