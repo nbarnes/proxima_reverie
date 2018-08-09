@@ -91,7 +91,6 @@ function buildCellPath(start, end) {
 }
 
 function buildCellPathAStar(start, end) {
-  // console.log('start buildCellPathAStar');
   let open = new BinaryHeap(
     a => {
       return a.f;
@@ -102,50 +101,27 @@ function buildCellPathAStar(start, end) {
   );
   open.push(new GraphNode(start));
   let closed = [];
-  let insanity = 0;
-
-  // console.log(`end: ${end.constructor.name}`);
-  // console.log(`  x${end.x}, y${end.y}`);
   while (open.size() > 0) {
     let currentNode = open.pop();
     closed.push(currentNode);
-    // console.log('');
-    // console.log('Considering....');
-    // console.log(currentNode.constructor.name);
-    // console.log(`  x${currentNode.x}, y${currentNode.y}, f${currentNode.f}`);
     if (coordsEqual(currentNode, end)) {
-      // console.log(
-      //   `currentNode x${currentNode.x}, y${currentNode.y} is end node x${
-      //     end.x
-      //   }, y${end.y}`
-      // );
       return buildPath(currentNode);
     }
-    // console.log(`closed:`);
-    // for (let closedNode of closed) {
-    // console.log(
-    //   `  ${closedNode.constructor.name}: x${closedNode.x}, y${closedNode.y}`
-    // );
-    // }
     let neighbors = currentNode.neighbors;
     for (let neighbor of neighbors) {
       let g = currentNode.g + 1;
-      neighbor.g = g;
-      neighbor.f = neighbor.g + manhattenDistance(neighbor, end);
-      // console.log(
-      //   `Considering neighbor ${neighbor.constructor.name} x${neighbor.x}, y${
-      //     neighbor.y
-      //   }`
-      // );
-      // console.log(`  neighbor has g${neighbor.g}, f${neighbor.f}`);
+      let f = g + manhattenDistance(neighbor, end);
       if (!arrayIncludesCoords(closed, neighbor)) {
-        // console.log(
-        //   `  closed does not include neighbor x${neighbor.x}, y${neighbor.y}`
-        // );
-        neighbor.parent = currentNode;
         if (!open.includes(neighbor)) {
+          neighbor.parent = currentNode;
+          neighbor.f = f;
           open.push(neighbor);
         }
+      } else if (neighbor.g >= g) {
+        closed = closed.filter(el => !coordsEqual(el, neighbor));
+        neighbor.parent = currentNode;
+        neighbor.f = f;
+        open.push(nieghbor);
       }
     }
   }
