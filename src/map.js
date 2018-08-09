@@ -1,6 +1,7 @@
 'use strict';
 
 import { rand } from './util';
+import Cell from './cell';
 
 export default class Map {
   constructor(tiles, mapSize) {
@@ -8,7 +9,7 @@ export default class Map {
     this.mapSize = mapSize;
     this.tileWidth = tiles[0].tileWidth;
     this.tileHeight = tiles[0].tileHeight;
-    this.mapDef = buildMapDef(this);
+    this.cells = buildCells(this);
   }
 
   get mapCanvas() {
@@ -18,27 +19,51 @@ export default class Map {
     return this.myMapCanvas;
   }
 
-  mapCoordsForTile(tileCoords) {
+  mapCoordsForCell(cellCoords) {
     let xOffset = (this.mapSize * this.tileWidth) / 2 - this.tileWidth / 2;
-    let mapX = (tileCoords.x - tileCoords.y) * (this.tileWidth / 2) + xOffset;
-    let mapY = (tileCoords.x + tileCoords.y) * (this.tileHeight / 2);
+    let mapX = (cellCoords.x - cellCoords.y) * (this.tileWidth / 2) + xOffset;
+    let mapY = (cellCoords.x + cellCoords.y) * (this.tileHeight / 2);
     return { x: mapX, y: mapY };
   }
 
   get tileOffsets() {
     return { x: this.tileWidth / 2, y: this.tileHeight / 2 };
   }
+
+  cellAt(coords) {
+    return this.cells[coords.x][coords.y];
+  }
+
+  neighbors(coords) {
+    let neighbors = [];
+    if (coords.x < this.mapSize - 1) {
+      neighbors.push(this.cells[coords.x + 1][coords.y]);
+    }
+    if (coords.x > 0) {
+      neighbors.push(this.cells[coords.x - 1][coords.y]);
+    }
+    if (coords.y < this.mapSize - 1) {
+      neighbors.push(this.cells[coords.x][coords.y + 1]);
+    }
+    if (coords.y > 0) {
+      neighbors.push(this.cells[coords.x][coords.y - 1]);
+    }
+    return neighbors;
+  }
 }
 
-function buildMapDef(map) {
-  let mapDef = [];
+function buildCells(map) {
+  let cells = [];
   for (let i = 0; i < map.mapSize; i++) {
-    mapDef[i] = [];
+    cells[i] = [];
     for (let j = 0; j < map.mapSize; j++) {
-      mapDef[i][j] = map.tiles[rand(map.tiles.length)];
+      cells[i][j] = new Cell(map.tiles[rand(map.tiles.length)], map, {
+        x: i,
+        y: j
+      });
     }
   }
-  return mapDef;
+  return cells;
 }
 
 function drawMapCanvas(map) {
@@ -46,16 +71,16 @@ function drawMapCanvas(map) {
   mapCanvas.width = map.mapSize * map.tileWidth - map.mapSize;
   mapCanvas.height = map.mapSize * map.tileHeight - map.mapSize;
 
-  for (let [x, row] of map.mapDef.entries()) {
-    for (let [y, tile] of row.entries()) {
-      drawTile(map, mapCanvas.getContext('2d'), tile, x, y);
+  for (let [x, row] of map.cells.entries()) {
+    for (let [y, cell] of row.entries()) {
+      drawTile(map, mapCanvas.getContext('2d'), cell.tile, x, y);
     }
   }
   return mapCanvas;
 }
 
 function drawTile(map, context, tile, mapX, mapY) {
-  let contextCoords = map.mapCoordsForTile({ x: mapX, y: mapY });
+  let contextCoords = map.mapCoordsForCell({ x: mapX, y: mapY });
   context.drawImage(
     tile.img,
     contextCoords.x,

@@ -11,6 +11,10 @@ export class BinaryHeap {
     this.elements = [];
   }
 
+  first() {
+    return this.elements[0];
+  }
+
   push(newElement) {
     // Add the new element to the end of the array.
     this.elements.push(newElement);
@@ -49,11 +53,15 @@ export class BinaryHeap {
     return this.elements.length;
   }
 
+  includes(targetElement) {
+    return this.elements.indexOf(targetElement) != -1;
+  }
+
   bubbleUp(i) {
     // Fetch the element that has to be moved.
     let element = this.elements[i],
       score = this.scoreFunction(element);
-    // When at 0, an element can not go up any further.
+    // When at 0, an element cannot go up any further.
     while (i > 0) {
       // Compute the parent element's index, and fetch it.
       let parentI = Math.floor((i + 1) / 2) - 1,

@@ -2,7 +2,7 @@
 
 import { Assets } from './asset_manager';
 import AssetOwner from './asset_owner';
-import { entityMapLocationFromTile, Facing } from './util';
+import { entityMapLocationFromCell, Facing } from './util';
 
 export default class Entity extends AssetOwner {
   constructor(entityDef, map, brain) {
@@ -10,13 +10,13 @@ export default class Entity extends AssetOwner {
     this.frameSize = entityDef.frameSize;
     this.frameOffsets = entityDef.frameOffsets || { x: 0, y: 0 };
     this.map = map;
-    this.currentTile = entityDef.startTile || { x: 0, y: 0 };
-    this.myLocation = entityMapLocationFromTile(
-      this.currentTile,
+    this.currentCell = this.map.cellAt(entityDef.startCell || { x: 0, y: 0 });
+    this.myLocation = entityMapLocationFromCell(
+      this.currentCell,
       this.map,
       this.frameOffsets
     );
-    this.tilePath = [];
+    this.cellPath = [];
     this.brain = brain;
     this.destination = undefined;
     this.facing = entityDef.facing;
@@ -27,6 +27,7 @@ export default class Entity extends AssetOwner {
   }
 
   get location() {
+    // console.log(this.myLocation);
     return this.myLocation;
   }
 
@@ -54,7 +55,6 @@ export default class Entity extends AssetOwner {
       ) {
         newFacing = Facing.SOUTHWEST;
       } else {
-        console.log('Error in facing alg in Entity; this should never happen');
         newFacing = Facing.NORTHEAST;
       }
     }
@@ -73,11 +73,11 @@ export default class Entity extends AssetOwner {
     return 0;
   }
 
-  respondToMouse(eventTile, blockingAnimationCallback) {
+  respondToMouse(eventCell, blockingAnimationCallback) {
     if (this.activity == undefined) {
       this.activity = this.brain.getActivity(
         this,
-        eventTile,
+        eventCell,
         blockingAnimationCallback
       );
     }

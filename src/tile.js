@@ -1,11 +1,9 @@
+'use strict';
 
-"use strict";
-
-import { Assets } from "./asset_manager";
-import AssetOwner from "./asset_owner";
+import { Assets } from './asset_manager';
+import AssetOwner from './asset_owner';
 
 export default class Tile extends AssetOwner {
-
   constructor(assetPaths) {
     super(assetPaths);
     this.tileWidth = 128;
@@ -16,5 +14,4 @@ export default class Tile extends AssetOwner {
   get img() {
     return Assets.get(this.assetPaths[this.imageFrameIndex]);
   }
-
 }

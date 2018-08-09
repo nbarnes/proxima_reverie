@@ -48,12 +48,15 @@ export default class Scene {
         this.viewportOffsetDimensions,
         eventViewportPosition
       );
-      let tilePosition = getCursorTilePosition(this.map, eventMapPosition);
+      let cellPosition = getCursorCellPosition(this.map, eventMapPosition);
 
       if (!this.waitingOnAnimation) {
-        this.activeMobile.respondToMouse(tilePosition, shouldWait => {
-          this.waitingOnAnimation = shouldWait;
-        });
+        this.activeMobile.respondToMouse(
+          this.map.cellAt(cellPosition),
+          shouldWait => {
+            this.waitingOnAnimation = shouldWait;
+          }
+        );
 
         if (this.mobiles.slice(-1)[0] == this.activeMobile) {
           this.activeMobile = this.mobiles[0];
@@ -127,17 +130,17 @@ function getCursorMapPosition(viewOffsets, position) {
   return { x: viewOffsets.x + position.x, y: viewOffsets.y + position.y };
 }
 
-function getCursorTilePosition(map, position) {
+function getCursorCellPosition(map, position) {
   let halfTileWidth = map.tileWidth / 2;
   let halfTileHeight = map.tileHeight / 2;
   let halfMapSize = map.mapSize / 2;
-  let tileX =
+  let cellX =
     (position.x / halfTileWidth + position.y / halfTileHeight) / 2 -
     halfMapSize;
-  let tileY =
+  let cellY =
     (position.y / halfTileHeight - position.x / halfTileWidth) / 2 +
     halfMapSize;
-  return { x: Math.floor(tileX), y: Math.floor(tileY) };
+  return { x: Math.floor(cellX), y: Math.floor(cellY) };
 }
 
 function getEventViewportPosition(viewport, event) {
