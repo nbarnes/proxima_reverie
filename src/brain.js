@@ -102,6 +102,8 @@ function buildCellPathAStar(start, end) {
   );
   open.push(new GraphNode(start));
   let closed = [];
+  let insanity = 0;
+
   // console.log(`end: ${end.constructor.name}`);
   // console.log(`  x${end.x}, y${end.y}`);
   while (open.size() > 0) {
@@ -127,25 +129,23 @@ function buildCellPathAStar(start, end) {
     // }
     let neighbors = currentNode.neighbors;
     for (let neighbor of neighbors) {
+      let g = currentNode.g + 1;
+      neighbor.g = g;
+      neighbor.f = neighbor.g + manhattenDistance(neighbor, end);
       // console.log(
       //   `Considering neighbor ${neighbor.constructor.name} x${neighbor.x}, y${
       //     neighbor.y
       //   }`
       // );
+      // console.log(`  neighbor has g${neighbor.g}, f${neighbor.f}`);
       if (!arrayIncludesCoords(closed, neighbor)) {
-        let g = currentNode.g + 1;
-        // console.log(`  neighbor has g${neighbor.g}, f${neighbor.f}`);
         // console.log(
         //   `  closed does not include neighbor x${neighbor.x}, y${neighbor.y}`
         // );
+        neighbor.parent = currentNode;
         if (!open.includes(neighbor)) {
           open.push(neighbor);
-        } else if (g >= neighbor.g) {
-          continue;
         }
-        neighbor.parent = currentNode;
-        neighbor.f = neighbor.g + manhattenDistance(neighbor, end);
-        console.log(neighbor.f);
       }
     }
   }
