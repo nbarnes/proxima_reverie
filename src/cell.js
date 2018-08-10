@@ -5,6 +5,7 @@ export default class Cell {
     this.tile = tile;
     this.map = map;
     this.coords = coords;
+    this.contents = [];
   }
 
   get neighbors() {
@@ -17,5 +18,17 @@ export default class Cell {
 
   get y() {
     return this.coords.y;
+  }
+
+  addContents(entity) {
+    this.contents.push(entity);
+  }
+
+  removeContents(entity) {
+    this.contents = this.contents.filter(el => !(el == entity));
+  }
+
+  pathable() {
+    return this.contents.length == 0;
   }
 }

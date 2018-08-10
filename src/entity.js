@@ -2,7 +2,7 @@
 
 import { Assets } from './asset_manager';
 import AssetOwner from './asset_owner';
-import { entityMapLocationFromCell, Facing } from './util';
+import { entityMapLocationFromCell, Facing, coordsEqual } from './util';
 
 export default class Entity extends AssetOwner {
   constructor(entityDef, map, brain) {
@@ -11,6 +11,7 @@ export default class Entity extends AssetOwner {
     this.frameOffsets = entityDef.frameOffsets || { x: 0, y: 0 };
     this.map = map;
     this.currentCell = this.map.cellAt(entityDef.startCell || { x: 0, y: 0 });
+    this.addToCell(this.currentCell);
     this.myLocation = entityMapLocationFromCell(
       this.currentCell,
       this.map,
@@ -74,7 +75,7 @@ export default class Entity extends AssetOwner {
   }
 
   respondToMouse(eventCell, blockingAnimationCallback) {
-    if (this.activity == undefined) {
+    if (this.activity == undefined && this.brain != undefined) {
       this.activity = this.brain.getActivity(
         this,
         eventCell,
@@ -85,6 +86,23 @@ export default class Entity extends AssetOwner {
 
   activityDone() {
     this.activity = undefined;
+  }
+
+  moveBetweenCells(from, to) {
+    this.removeFromCell(from);
+    this.addToCell(to);
+  }
+
+  addToCell(cell) {
+    cell.addContents(this);
+    this.currentCell = cell;
+  }
+
+  removeFromCell(cell) {
+    cell.removeContents(this);
+    if (coordsEqual(this.currentCell, cell)) {
+      this.currentCell = undefined;
+    }
   }
 
   tick() {

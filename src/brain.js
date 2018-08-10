@@ -9,9 +9,9 @@ import { BinaryHeap } from './binary_heap';
 
 export class MobileBrain {
   getActivity(entity, eventCell, blockingAnimationCallback) {
-    let startCell = entity.currentCell;
-    let endCell = eventCell;
-    let cellPath = buildCellPathAStar(startCell, endCell);
+    let start = entity.currentCell;
+    let end = eventCell;
+    let path = buildPathAStar(start, end);
     let destination = undefined;
     blockingAnimationCallback(true);
     return () => {
@@ -21,9 +21,9 @@ export class MobileBrain {
         if (coordsEqual(entity.location, destination)) {
           destination = undefined;
         }
-      } else if (cellPath.length > 0) {
-        entity.currentCell = cellPath[0];
-        destination = getDestination(entity, cellPath);
+      } else if (path.length > 0) {
+        entity.moveBetweenCells(entity.currentCell, path[0]);
+        destination = getDestination(entity, path);
       } else {
         entity.activityDone();
         blockingAnimationCallback(false);
@@ -65,7 +65,7 @@ function getDestination(entity, cellPath) {
 }
 
 // Uses Brensenham's line algorithm
-function buildCellPath(start, end) {
+function buildPath(start, end) {
   let path = [];
 
   let currentX = start.x,
@@ -90,7 +90,7 @@ function buildCellPath(start, end) {
   return path;
 }
 
-function buildCellPathAStar(start, end) {
+function buildPathAStar(start, end) {
   let open = new BinaryHeap(
     a => {
       return a.f;
@@ -109,22 +109,27 @@ function buildCellPathAStar(start, end) {
     }
     let neighbors = currentNode.neighbors;
     for (let neighbor of neighbors) {
-      let g = currentNode.g + 1;
-      let f = g + manhattenDistance(neighbor, end);
-      if (!arrayIncludesCoords(closed, neighbor)) {
-        if (!open.includes(neighbor)) {
+      if (neighbor.pathable()) {
+        let g = currentNode.g + 1;
+        let f = g + manhattenDistance(neighbor, end);
+        if (!arrayIncludesCoords(closed, neighbor)) {
+          if (!open.includes(neighbor)) {
+            neighbor.parent = currentNode;
+            neighbor.f = f;
+            open.push(neighbor);
+          }
+        } else if (neighbor.g >= g) {
+          closed = closed.filter(el => !coordsEqual(el, neighbor));
           neighbor.parent = currentNode;
           neighbor.f = f;
-          open.push(neighbor);
+          open.push(nieghbor);
         }
-      } else if (neighbor.g >= g) {
-        closed = closed.filter(el => !coordsEqual(el, neighbor));
-        neighbor.parent = currentNode;
-        neighbor.f = f;
-        open.push(nieghbor);
+      } else if (!arrayIncludesCoords(closed, neighbor)) {
+        closed.push(neighbor);
       }
     }
   }
+  return []; // no path found
 }
 
 function buildPath(endNode) {
@@ -167,5 +172,8 @@ class GraphNode {
   }
   get y() {
     return this.cell.coords.y;
+  }
+  pathable() {
+    return this.cell.pathable();
   }
 }

@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
   //   console.log(heap.pop());
   // }
 
-  let tickLength = 20;
+  let tickLength = 50;
 
   var viewport = document.getElementById('viewport-canvas');
   let viewportDimensions = { x: 600, y: 400 };

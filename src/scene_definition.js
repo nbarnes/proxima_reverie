@@ -19,19 +19,19 @@ export const sceneDef = {
       imagePaths: ['./src/img/mobiles/8way_mobile.png'],
       startCell: { x: 3, y: 3 },
       frameSize: { width: 60, height: 110 },
-      frameOffsets: { x: 30, y: 110 }
+      frameOffsets: { x: 30, y: 100 }
     },
     {
       imagePaths: ['./src/img/mobiles/8way_mobile.png'],
       startCell: { x: 5, y: 4 },
       frameSize: { width: 60, height: 110 },
-      frameOffsets: { x: 30, y: 110 }
+      frameOffsets: { x: 30, y: 100 }
     },
     {
       imagePaths: ['./src/img/mobiles/8way_mobile.png'],
       startCell: { x: 3, y: 6 },
       frameSize: { width: 60, height: 110 },
-      frameOffsets: { x: 30, y: 110 }
+      frameOffsets: { x: 30, y: 100 }
     }
   ],
   propDefs: [
