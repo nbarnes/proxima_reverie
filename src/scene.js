@@ -7,6 +7,8 @@ import { Assets } from './asset_manager';
 import { Input } from './input';
 import { MobileBrain } from './brain';
 
+const BinarySearchTree = require('binary-search-tree').BinarySearchTree;
+
 export default class Scene {
   constructor(sceneDef, viewport, viewportDimensions, loadCompleteCallback) {
     let tiles = sceneDef.mapDef.tileImagePaths.map(tileImagePath => {
@@ -22,6 +24,15 @@ export default class Scene {
     this.props = sceneDef.propDefs.map(propDef => {
       return new Entity(propDef, this.map);
     });
+
+    var _entities = this.mobiles.concat(this.props);
+    this.drawOrderSortedEntities = new BinarySearchTree();
+    for (let entity of _entities) {
+      this.drawOrderSortedEntities.insert(
+        entity.cellLocation.x + entity.cellLocation.y,
+        entity
+      );
+    }
 
     this.viewport = viewport;
     this.viewportDimensions = viewportDimensions;
@@ -94,32 +105,20 @@ export default class Scene {
       this.viewportDimensions.y
     );
 
-    this.mobiles.forEach(mobile => {
-      context.drawImage(
-        mobile.image,
-        mobile.frameXOrigin,
-        mobile.frameYOrigin,
-        mobile.frameSize.width,
-        mobile.frameSize.height,
-        mobile.location.x - this.viewportOffsetDimensions.x,
-        mobile.location.y - this.viewportOffsetDimensions.y,
-        mobile.frameSize.width,
-        mobile.frameSize.height
-      );
-    });
-
-    this.props.forEach(prop => {
-      context.drawImage(
-        prop.image,
-        prop.frameXOrigin,
-        prop.frameYOrigin,
-        prop.frameSize.width,
-        prop.frameSize.height,
-        prop.location.x - this.viewportOffsetDimensions.x,
-        prop.location.y - this.viewportOffsetDimensions.y,
-        prop.frameSize.width,
-        prop.frameSize.height
-      );
+    this.drawOrderSortedEntities.executeOnEveryNode(node => {
+      for (let entity of node.data) {
+        context.drawImage(
+          entity.image,
+          entity.frameXOrigin,
+          entity.frameYOrigin,
+          entity.frameSize.width,
+          entity.frameSize.height,
+          entity.location.x - this.viewportOffsetDimensions.x,
+          entity.location.y - this.viewportOffsetDimensions.y,
+          entity.frameSize.width,
+          entity.frameSize.height
+        );
+      }
     });
 
     Input.resetInputs();

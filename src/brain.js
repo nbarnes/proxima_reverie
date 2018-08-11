@@ -9,7 +9,7 @@ import { BinaryHeap } from './binary_heap';
 
 export class MobileBrain {
   getActivity(entity, eventCell, blockingAnimationCallback) {
-    let start = entity.currentCell;
+    let start = entity.cellLocation;
     let end = eventCell;
     let path = buildPathAStar(start, end);
     let destination = undefined;
@@ -22,7 +22,7 @@ export class MobileBrain {
           destination = undefined;
         }
       } else if (path.length > 0) {
-        entity.moveBetweenCells(entity.currentCell, path[0]);
+        entity.moveBetweenCells(entity.cellLocation, path[0]);
         destination = getDestination(entity, path);
       } else {
         entity.activityDone();

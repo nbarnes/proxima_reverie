@@ -10,10 +10,10 @@ export default class Entity extends AssetOwner {
     this.frameSize = entityDef.frameSize;
     this.frameOffsets = entityDef.frameOffsets || { x: 0, y: 0 };
     this.map = map;
-    this.currentCell = this.map.cellAt(entityDef.startCell || { x: 0, y: 0 });
-    this.addToCell(this.currentCell);
+    this.cellLocation = this.map.cellAt(entityDef.startCell || { x: 0, y: 0 });
+    this.addToCell(this.cellLocation);
     this.myLocation = entityMapLocationFromCell(
-      this.currentCell,
+      this.cellLocation,
       this.map,
       this.frameOffsets
     );
@@ -95,13 +95,13 @@ export default class Entity extends AssetOwner {
 
   addToCell(cell) {
     cell.addContents(this);
-    this.currentCell = cell;
+    this.cellLocation = cell;
   }
 
   removeFromCell(cell) {
     cell.removeContents(this);
-    if (coordsEqual(this.currentCell, cell)) {
-      this.currentCell = undefined;
+    if (coordsEqual(this.cellLocation, cell)) {
+      this.cellLocation = undefined;
     }
   }
 
