@@ -15,24 +15,15 @@ export default class Scene {
       return new Tile([tileImagePath]);
     });
 
+    this.drawOrderSortedEntities = new BinarySearchTree();
     this.map = new Map(tiles, sceneDef.mapDef.mapSize);
-
     this.mobiles = sceneDef.mobileDefs.map(mobileDef => {
-      return new Entity(mobileDef, this.map, new MobileBrain());
+      return new Entity(mobileDef, this, new MobileBrain());
     });
     this.activeMobile = this.mobiles[0];
     this.props = sceneDef.propDefs.map(propDef => {
-      return new Entity(propDef, this.map);
+      return new Entity(propDef, this);
     });
-
-    var _entities = this.mobiles.concat(this.props);
-    this.drawOrderSortedEntities = new BinarySearchTree();
-    for (let entity of _entities) {
-      this.drawOrderSortedEntities.insert(
-        entity.cellLocation.x + entity.cellLocation.y,
-        entity
-      );
-    }
 
     this.viewport = viewport;
     this.viewportDimensions = viewportDimensions;
@@ -122,6 +113,22 @@ export default class Scene {
     });
 
     Input.resetInputs();
+  }
+
+  addEntityToDraw(entity) {
+    console.log('adding');
+    this.drawOrderSortedEntities.insert(
+      entity.cellLocation.x + entity.cellLocation.y,
+      entity
+    );
+  }
+
+  removeEntityFromDraw(entity) {
+    console.log('removing');
+    this.drawOrderSortedEntities.delete(
+      entity.cellLocation.x + entity.cellLocation.y,
+      entity
+    );
   }
 }
 

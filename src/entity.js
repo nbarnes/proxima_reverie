@@ -5,16 +5,18 @@ import AssetOwner from './asset_owner';
 import { entityMapLocationFromCell, Facing, coordsEqual } from './util';
 
 export default class Entity extends AssetOwner {
-  constructor(entityDef, map, brain) {
+  constructor(entityDef, scene, brain) {
     super(entityDef.imagePaths);
     this.frameSize = entityDef.frameSize;
     this.frameOffsets = entityDef.frameOffsets || { x: 0, y: 0 };
-    this.map = map;
-    this.cellLocation = this.map.cellAt(entityDef.startCell || { x: 0, y: 0 });
+    this.scene = scene;
+    this.cellLocation = this.scene.map.cellAt(
+      entityDef.startCell || { x: 0, y: 0 }
+    );
     this.addToCell(this.cellLocation);
     this.myLocation = entityMapLocationFromCell(
       this.cellLocation,
-      this.map,
+      this.scene.map,
       this.frameOffsets
     );
     this.cellPath = [];
@@ -96,10 +98,12 @@ export default class Entity extends AssetOwner {
   addToCell(cell) {
     cell.addContents(this);
     this.cellLocation = cell;
+    this.scene.addEntityToDraw(this);
   }
 
   removeFromCell(cell) {
     cell.removeContents(this);
+    this.scene.removeEntityFromDraw(this);
     if (coordsEqual(this.cellLocation, cell)) {
       this.cellLocation = undefined;
     }

@@ -57,7 +57,7 @@ function getDestination(entity, cellPath) {
   if (nextCellDestination != undefined) {
     nextDestination = entityMapLocationFromCell(
       nextCellDestination,
-      entity.map,
+      entity.scene.map,
       entity.frameOffsets
     );
   }
