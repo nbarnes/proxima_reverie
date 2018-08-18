@@ -5,27 +5,10 @@ import './styles/index.css';
 import { Input } from './input';
 import Scene from './scene';
 import { sceneDef } from './scene_definition';
-import { BinaryHeap } from './binary_heap';
+import { throttle } from './util';
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Proxma Reverie approaches!');
-
-  // console.log('testing BinaryHeap');
-  // let heap = new BinaryHeap(
-  //   el => {
-  //     return el;
-  //   },
-  //   (a, b) => {
-  //     return a == b;
-  //   }
-  // );
-  // for (let entry of [10, 3, 4, 8, 2, 9, 7, 1, 2, 6, 5]) {
-  //   heap.push(entry);
-  // }
-  // heap.remove(2);
-  // while (heap.size() > 0) {
-  //   console.log(heap.pop());
-  // }
 
   let tickLength = 50;
 
@@ -58,4 +41,11 @@ document.addEventListener('DOMContentLoaded', function() {
   viewport.addEventListener('mouseup', event => {
     Input.mouseUp(event);
   });
+
+  viewport.addEventListener(
+    'mousemove',
+    throttle(event => {
+      Input.mouseMoved(event);
+    }, 50)
+  );
 });

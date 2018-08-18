@@ -6,6 +6,7 @@ import Entity from './entity';
 import { Assets } from './asset_manager';
 import { Input } from './input';
 import { MobileBrain } from './brain';
+import { TileHighlighter } from './tile_highlighter';
 
 const BinarySearchTree = require('binary-search-tree').BinarySearchTree;
 
@@ -28,29 +29,42 @@ export default class Scene {
     this.viewport = viewport;
     this.viewportDimensions = viewportDimensions;
 
-    Assets.loadAssets([...tiles, ...this.mobiles, ...this.props], () => {
-      this.viewportOffsetDimensions = {
-        x: this.map.mapCanvas.width / 2 - viewportDimensions.x / 2,
-        y: this.map.mapCanvas.height / 2 - viewportDimensions.y / 2
-      };
-      loadCompleteCallback();
-    });
+    Assets.loadAssets(
+      [...tiles, ...this.mobiles, ...this.props, TileHighlighter],
+      () => {
+        this.viewportOffsets = {
+          x: this.map.mapCanvas.width / 2 - viewportDimensions.x / 2,
+          y: this.map.mapCanvas.height / 2 - viewportDimensions.y / 2
+        };
+        loadCompleteCallback();
+      }
+    );
 
     this.waitingOnAnimation = false;
   }
 
   tick() {
-    let mouseEvent = Input.getMouseEvent();
-    if (mouseEvent != undefined) {
-      let eventViewportPosition = getEventViewportPosition(
+    let mouseMovedEvent = Input.getMouseMovedEvent();
+    if (mouseMovedEvent != undefined) {
+      let cellPosition = getMouseEventCellPosition(
+        mouseMovedEvent,
         this.viewport,
-        mouseEvent
+        this.viewportOffsets,
+        this.map
       );
-      let eventMapPosition = getCursorMapPosition(
-        this.viewportOffsetDimensions,
-        eventViewportPosition
+      if (!this.waitingOnAnimation) {
+        TileHighlighter.mouseAt(this.map, cellPosition);
+      }
+    }
+
+    let mouseUpEvent = Input.getMouseUpEvent();
+    if (mouseUpEvent != undefined) {
+      let cellPosition = getMouseEventCellPosition(
+        mouseUpEvent,
+        this.viewport,
+        this.viewportOffsets,
+        this.map
       );
-      let cellPosition = getCursorCellPosition(this.map, eventMapPosition);
 
       if (!this.waitingOnAnimation) {
         this.activeMobile.respondToMouse(
@@ -86,8 +100,8 @@ export default class Scene {
     );
     context.drawImage(
       this.map.mapCanvas,
-      this.viewportOffsetDimensions.x,
-      this.viewportOffsetDimensions.y,
+      this.viewportOffsets.x,
+      this.viewportOffsets.y,
       this.viewportDimensions.x,
       this.viewportDimensions.y,
       0,
@@ -95,6 +109,11 @@ export default class Scene {
       this.viewportDimensions.x,
       this.viewportDimensions.y
     );
+
+    TileHighlighter.draw(context, this.viewportOffsets, {
+      x: this.map.tileWidth,
+      y: this.map.tileHeight
+    });
 
     this.drawOrderSortedEntities.executeOnEveryNode(node => {
       for (let entity of node.data) {
@@ -104,8 +123,8 @@ export default class Scene {
           entity.frameYOrigin,
           entity.frameSize.width,
           entity.frameSize.height,
-          entity.location.x - this.viewportOffsetDimensions.x,
-          entity.location.y - this.viewportOffsetDimensions.y,
+          entity.location.x - this.viewportOffsets.x,
+          entity.location.y - this.viewportOffsets.y,
           entity.frameSize.width,
           entity.frameSize.height
         );
@@ -116,7 +135,6 @@ export default class Scene {
   }
 
   addEntityToDraw(entity) {
-    console.log('adding');
     this.drawOrderSortedEntities.insert(
       entity.cellLocation.x + entity.cellLocation.y,
       entity
@@ -124,7 +142,6 @@ export default class Scene {
   }
 
   removeEntityFromDraw(entity) {
-    console.log('removing');
     this.drawOrderSortedEntities.delete(
       entity.cellLocation.x + entity.cellLocation.y,
       entity
@@ -132,26 +149,26 @@ export default class Scene {
   }
 }
 
-function getCursorMapPosition(viewOffsets, position) {
-  return { x: viewOffsets.x + position.x, y: viewOffsets.y + position.y };
-}
-
-function getCursorCellPosition(map, position) {
+function getMouseEventCellPosition(event, viewport, viewportOffsets, map) {
+  let rect = viewport.getBoundingClientRect();
+  let viewportPosition = {
+    x: event.clientX - rect.left,
+    y: event.clientY - rect.top
+  };
+  let mapPosition = {
+    x: viewportOffsets.x + viewportPosition.x,
+    y: viewportOffsets.y + viewportPosition.y
+  };
   let halfTileWidth = map.tileWidth / 2;
   let halfTileHeight = map.tileHeight / 2;
   let halfMapSize = map.mapSize / 2;
-  let cellX =
-    (position.x / halfTileWidth + position.y / halfTileHeight) / 2 -
-    halfMapSize;
-  let cellY =
-    (position.y / halfTileHeight - position.x / halfTileWidth) / 2 +
-    halfMapSize;
-  return { x: Math.floor(cellX), y: Math.floor(cellY) };
-}
-
-function getEventViewportPosition(viewport, event) {
-  let rect = viewport.getBoundingClientRect();
-  let x = event.clientX - rect.left;
-  let y = event.clientY - rect.top;
-  return { x: x, y: y };
+  let cellPosition = {
+    x:
+      (mapPosition.x / halfTileWidth + mapPosition.y / halfTileHeight) / 2 -
+      halfMapSize,
+    y:
+      (mapPosition.y / halfTileHeight - mapPosition.x / halfTileWidth) / 2 +
+      halfMapSize
+  };
+  return { x: Math.floor(cellPosition.x), y: Math.floor(cellPosition.y) };
 }

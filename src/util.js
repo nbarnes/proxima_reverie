@@ -4,6 +4,19 @@ export const rand = max => {
   return Math.floor(Math.random() * Math.floor(max));
 };
 
+export const throttle = (callback, delay) => {
+  let wait = false;
+  return function(arg) {
+    if (!wait) {
+      callback(arg);
+      wait = true;
+      setTimeout(function() {
+        wait = false;
+      }, delay);
+    }
+  };
+};
+
 export const coordsEqual = (a, b) => {
   if (a.x == undefined || b.x == undefined) {
     console.log('Undefined value in util.coordsEqual');
@@ -22,10 +35,10 @@ export const arrayIncludesCoords = (arr, coord_a) => {
 
 export const entityMapLocationFromCell = (cell, map, frameOffsets) => {
   let mapDestination = map.mapCoordsForCell({ x: cell.x, y: cell.y });
-  let tileOffset = map.tileOffsets;
+  let tileOffsets = map.tileOffsets;
   let mapLocation = {
-    x: mapDestination.x + tileOffset.x - frameOffsets.x,
-    y: mapDestination.y + tileOffset.y - frameOffsets.y
+    x: mapDestination.x + tileOffsets.x - frameOffsets.x,
+    y: mapDestination.y + tileOffsets.y - frameOffsets.y
   };
   return mapLocation;
 };
