@@ -10,11 +10,13 @@ import { throttle } from './util';
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Proxma Reverie approaches!');
 
-  let tickLength = 50;
+  let tickLength = 20;
 
   var viewport = document.getElementById('viewport-canvas');
   let viewportDimensions = { x: 600, y: 400 };
+  // @ts-ignore
   viewport.width = viewportDimensions.x;
+  // @ts-ignore
   viewport.height = viewportDimensions.y;
 
   let d = new Date(),
@@ -33,6 +35,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     lastTime = currentTime;
     scene.tick(ticksElapsed);
+    if (ticksElapsed > 0) {
+      scene.draw();
+    }
     requestAnimationFrame(loop);
   };
 
@@ -49,13 +54,13 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   viewport.addEventListener('mouseup', event => {
-    Input.mouseUp(event);
+    scene.mouseup(event);
   });
 
   viewport.addEventListener(
     'mousemove',
     throttle(event => {
-      Input.mouseMoved(event);
-    }, 50)
+      scene.mousemove(event);
+    }, 20)
   );
 });

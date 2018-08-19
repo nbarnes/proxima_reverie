@@ -4,7 +4,6 @@ import Tile from './tile';
 import Map from './map';
 import Entity from './entity';
 import { Assets } from './asset_manager';
-import { Input } from './input';
 import { MobileBrain } from './brain';
 import { TileHighlighter } from './tile_highlighter';
 
@@ -16,6 +15,7 @@ export default class Scene {
       return new Tile([tileImagePath]);
     });
 
+    // @ts-ignore
     this.drawOrderSortedEntities = new BinarySearchTree();
     this.map = new Map(tiles, sceneDef.mapDef.mapSize);
     this.mobiles = sceneDef.mobileDefs.map(mobileDef => {
@@ -43,54 +43,18 @@ export default class Scene {
     this.waitingOnAnimation = false;
   }
 
-  tick() {
-    let mouseMovedEvent = Input.getMouseMovedEvent();
-    if (mouseMovedEvent != undefined) {
-      let cellPosition = getMouseEventCellPosition(
-        mouseMovedEvent,
-        this.viewport,
-        this.viewportOffsets,
-        this.map
-      );
-      if (!this.waitingOnAnimation) {
-        TileHighlighter.mouseAt(this.map, cellPosition);
-      }
+  tick(ticksElapsed) {
+    if (ticksElapsed > 0) {
+      this.mobiles.forEach(mobile => {
+        mobile.tick(ticksElapsed);
+      });
+      this.props.forEach(prop => {
+        prop.tick(ticksElapsed);
+      });
     }
+  }
 
-    let mouseUpEvent = Input.getMouseUpEvent();
-    if (mouseUpEvent != undefined) {
-      let cellPosition = getMouseEventCellPosition(
-        mouseUpEvent,
-        this.viewport,
-        this.viewportOffsets,
-        this.map
-      );
-
-      if (!this.waitingOnAnimation) {
-        this.activeMobile.respondToMouse(
-          this.map.cellAt(cellPosition),
-          shouldWait => {
-            this.waitingOnAnimation = shouldWait;
-          }
-        );
-
-        if (this.mobiles.slice(-1)[0] == this.activeMobile) {
-          this.activeMobile = this.mobiles[0];
-        } else {
-          this.activeMobile = this.mobiles[
-            this.mobiles.indexOf(this.activeMobile) + 1
-          ];
-        }
-      }
-    }
-
-    this.mobiles.forEach(mobile => {
-      mobile.tick();
-    });
-    this.props.forEach(prop => {
-      prop.tick();
-    });
-
+  draw() {
     let context = this.viewport.getContext('2d');
     context.clearRect(
       0,
@@ -130,8 +94,46 @@ export default class Scene {
         );
       }
     });
+  }
 
-    Input.resetInputs();
+  mousemove(event) {
+    if (event != undefined) {
+      let cellPosition = getMouseEventCellPosition(
+        event,
+        this.viewport,
+        this.viewportOffsets,
+        this.map
+      );
+      if (!this.waitingOnAnimation) {
+        TileHighlighter.mouseAt(this.map, cellPosition);
+      }
+    }
+  }
+
+  mouseup(event) {
+    let cellPosition = getMouseEventCellPosition(
+      event,
+      this.viewport,
+      this.viewportOffsets,
+      this.map
+    );
+
+    if (!this.waitingOnAnimation) {
+      this.activeMobile.respondToMouse(
+        this.map.cellAt(cellPosition),
+        shouldWait => {
+          this.waitingOnAnimation = shouldWait;
+        }
+      );
+
+      if (this.mobiles.slice(-1)[0] == this.activeMobile) {
+        this.activeMobile = this.mobiles[0];
+      } else {
+        this.activeMobile = this.mobiles[
+          this.mobiles.indexOf(this.activeMobile) + 1
+        ];
+      }
+    }
   }
 
   addEntityToDraw(entity) {
