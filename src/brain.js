@@ -122,7 +122,7 @@ function buildPathAStar(start, end) {
           closed = closed.filter(el => !coordsEqual(el, neighbor));
           neighbor.parent = currentNode;
           neighbor.f = f;
-          open.push(nieghbor);
+          open.push(neighbor);
         }
       } else if (!arrayIncludesCoords(closed, neighbor)) {
         closed.push(neighbor);
@@ -149,6 +149,8 @@ class GraphNode {
   constructor(cell) {
     this.cell = cell;
     this.f = 0;
+    this.myNeighbors = undefined;
+    this.parent = undefined;
   }
   get neighbors() {
     if (this.myNeighbors == undefined) {

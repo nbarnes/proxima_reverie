@@ -10,7 +10,7 @@ import { throttle } from './util';
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Proxma Reverie approaches!');
 
-  let tickLength = 20;
+  let tickLength = 50;
 
   var viewport = document.getElementById('viewport-canvas');
   let viewportDimensions = { x: 600, y: 400 };

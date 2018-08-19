@@ -109,9 +109,12 @@ export default class Entity extends AssetOwner {
     }
   }
 
-  tick() {
-    if (this.activity != undefined) {
-      this.activity();
-    }
+  tick(tickCount) {
+    let i = 0;
+    do {
+      if (this.activity != undefined) {
+        this.activity();
+      }
+    } while (i++ < tickCount);
   }
 }
