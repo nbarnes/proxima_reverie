@@ -21,11 +21,18 @@ document.addEventListener('DOMContentLoaded', function() {
     lastTime = d.getTime(),
     timeRemainder = 0;
   let loop = () => {
-    let d = new Date(),
-      timeElapsed = d.getTime() - lastTime;
+    let d2 = new Date(),
+      currentTime = d2.getTime(),
+      timeElapsed = currentTime - lastTime;
     let ticksElapsed = Math.floor((timeElapsed + timeRemainder) / tickLength);
-    timeRemainder = timeElapsed - ticksElapsed * tickLength;
-    scene.tick();
+    if (ticksElapsed > 0) {
+      timeRemainder =
+        (timeElapsed + timeRemainder) % (ticksElapsed * tickLength);
+    } else {
+      timeRemainder += timeElapsed;
+    }
+    lastTime = currentTime;
+    scene.tick(ticksElapsed);
     requestAnimationFrame(loop);
   };
 
