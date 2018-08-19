@@ -17,18 +17,21 @@ document.addEventListener('DOMContentLoaded', function() {
   viewport.width = viewportDimensions.x;
   viewport.height = viewportDimensions.y;
 
-  let scene = new Scene(sceneDef, viewport, viewportDimensions, () => {
-    setTimeout(() => {
-      tick();
-    }, 0);
-  });
-
-  function tick() {
+  let d = new Date(),
+    lastTime = d.getTime(),
+    timeRemainder = 0;
+  let loop = () => {
+    let d = new Date(),
+      timeElapsed = d.getTime() - lastTime;
+    let ticksElapsed = Math.floor((timeElapsed + timeRemainder) / tickLength);
+    timeRemainder = timeElapsed - ticksElapsed * tickLength;
     scene.tick();
-    setTimeout(() => {
-      tick();
-    }, tickLength);
-  }
+    requestAnimationFrame(loop);
+  };
+
+  let scene = new Scene(sceneDef, viewport, viewportDimensions, () => {
+    requestAnimationFrame(loop);
+  });
 
   document.addEventListener('keydown', event => {
     Input.keyDown(event.key);
