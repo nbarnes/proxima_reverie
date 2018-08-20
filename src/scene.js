@@ -6,6 +6,7 @@ import Entity from './entity';
 import { Assets } from './asset_manager';
 import { MobileBrain } from './brain';
 import { TileHighlighter } from './tile_highlighter';
+import { PubSub } from './pub_sub';
 
 const BinarySearchTree = require('binary-search-tree').BinarySearchTree;
 
@@ -39,6 +40,14 @@ export default class Scene {
         loadCompleteCallback();
       }
     );
+
+    PubSub.subscribe('blockingAnimationStarted', () => {
+      this.waitingOnAnimation = true;
+    });
+
+    PubSub.subscribe('blockingAnimationFinished', () => {
+      this.waitingOnAnimation = false;
+    });
 
     this.waitingOnAnimation = false;
   }
@@ -121,8 +130,11 @@ export default class Scene {
     if (!this.waitingOnAnimation) {
       this.activeMobile.respondToMouse(
         this.map.cellAt(cellPosition),
-        shouldWait => {
-          this.waitingOnAnimation = shouldWait;
+        () => {
+          PubSub.publish('blockingAnimationStarted');
+        },
+        () => {
+          PubSub.publish('blockingAnimationFinished');
         }
       );
 

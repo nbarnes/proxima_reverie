@@ -8,12 +8,12 @@ import {
 import { BinaryHeap } from './binary_heap';
 
 export class MobileBrain {
-  getActivity(entity, eventCell, blockingAnimationCallback) {
+  getActivity(entity, eventCell, startCallback, endCallback) {
     let start = entity.cellLocation;
     let end = eventCell;
     let path = buildPathAStar(start, end);
     let destination = undefined;
-    blockingAnimationCallback(true);
+    startCallback();
     return () => {
       if (destination != undefined) {
         let nextPosition = getNextMapPosition(entity, destination);
@@ -26,7 +26,7 @@ export class MobileBrain {
         destination = getDestination(entity, path);
       } else {
         entity.activityDone();
-        blockingAnimationCallback(false);
+        endCallback();
       }
     };
   }

@@ -76,12 +76,13 @@ export default class Entity extends AssetOwner {
     return 0;
   }
 
-  respondToMouse(eventCell, blockingAnimationCallback) {
+  respondToMouse(eventCell, startCallback, endCallback) {
     if (this.activity == undefined && this.brain != undefined) {
       this.activity = this.brain.getActivity(
         this,
         eventCell,
-        blockingAnimationCallback
+        startCallback,
+        endCallback
       );
     }
   }
