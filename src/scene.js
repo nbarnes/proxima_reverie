@@ -42,6 +42,7 @@ export default class Scene {
           x: this.map.mapCanvas.width / 2 - viewportDimensions.x / 2,
           y: this.map.mapCanvas.height / 2 - viewportDimensions.y / 2
         };
+        this.assetsLoaded = true;
         loadCompleteCallback();
       }
     );
@@ -56,16 +57,18 @@ export default class Scene {
     });
 
     PubSub.subscribe('mousemove', event => {
-      let cellLocation = getMouseEventCellPosition(
-        event,
-        this.viewport,
-        this.viewportOffsets,
-        this.map
-      );
-      PubSub.publish('mouseOverCell', {
-        cellLocation: cellLocation,
-        map: this.map
-      });
+      if (this.assetsLoaded) {
+        let cellLocation = getMouseEventCellPosition(
+          event,
+          this.viewport,
+          this.viewportOffsets,
+          this.map
+        );
+        PubSub.publish('mouseOverCell', {
+          cellLocation: cellLocation,
+          map: this.map
+        });
+      }
     });
   }
 
