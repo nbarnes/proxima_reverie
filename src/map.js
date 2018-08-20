@@ -1,6 +1,6 @@
 'use strict';
 
-import { rand } from './util';
+import { rand, mapCoordsForCell } from './util';
 import Cell from './cell';
 
 export default class Map {
@@ -17,13 +17,6 @@ export default class Map {
       this.myMapCanvas = drawMapCanvas(this);
     }
     return this.myMapCanvas;
-  }
-
-  mapCoordsForCell(cellCoords) {
-    let xOffset = (this.mapSize * this.tileWidth) / 2 - this.tileWidth / 2;
-    let mapX = (cellCoords.x - cellCoords.y) * (this.tileWidth / 2) + xOffset;
-    let mapY = (cellCoords.x + cellCoords.y) * (this.tileHeight / 2);
-    return { x: mapX, y: mapY };
   }
 
   get tileOffsets() {
@@ -57,6 +50,7 @@ function buildCells(map) {
   for (let i = 0; i < map.mapSize; i++) {
     cells[i] = [];
     for (let j = 0; j < map.mapSize; j++) {
+      // @ts-ignore
       cells[i][j] = new Cell(map.tiles[rand(map.tiles.length)], map, {
         x: i,
         y: j
@@ -80,7 +74,7 @@ function drawMapCanvas(map) {
 }
 
 function drawTile(map, context, tile, mapX, mapY) {
-  let contextCoords = map.mapCoordsForCell({ x: mapX, y: mapY });
+  let contextCoords = mapCoordsForCell({ x: mapX, y: mapY }, map);
   context.drawImage(
     tile.img,
     contextCoords.x,

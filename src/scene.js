@@ -31,9 +31,13 @@ export default class Scene {
     this.viewport = viewport;
     this.viewportDimensions = viewportDimensions;
 
+    this.waitingOnAnimation = false;
+
     Assets.loadAssets(
       [...tiles, ...this.mobiles, ...this.props, TileHighlighter],
       () => {
+        // the viewport offsets are set in the loading callback because the
+        // tile image assets need to be fully loaded before the map can be drawn
         this.viewportOffsets = {
           x: this.map.mapCanvas.width / 2 - viewportDimensions.x / 2,
           y: this.map.mapCanvas.height / 2 - viewportDimensions.y / 2
@@ -51,7 +55,18 @@ export default class Scene {
       this.activateNextMobile();
     });
 
-    this.waitingOnAnimation = false;
+    PubSub.subscribe('mousemove', event => {
+      let cellLocation = getMouseEventCellPosition(
+        event,
+        this.viewport,
+        this.viewportOffsets,
+        this.map
+      );
+      PubSub.publish('mouseOverCell', {
+        cellLocation: cellLocation,
+        map: this.map
+      });
+    });
   }
 
   tick(ticksElapsed) {
@@ -105,20 +120,6 @@ export default class Scene {
         );
       }
     });
-  }
-
-  mousemove(event) {
-    if (event != undefined) {
-      let cellPosition = getMouseEventCellPosition(
-        event,
-        this.viewport,
-        this.viewportOffsets,
-        this.map
-      );
-      if (!this.waitingOnAnimation) {
-        TileHighlighter.mouseAt(this.map, cellPosition);
-      }
-    }
   }
 
   mouseup(event) {

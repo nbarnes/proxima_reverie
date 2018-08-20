@@ -34,13 +34,20 @@ export const arrayIncludesCoords = (arr, coord_a) => {
 };
 
 export const entityMapLocationFromCell = (cell, map, frameOffsets) => {
-  let mapDestination = map.mapCoordsForCell({ x: cell.x, y: cell.y });
+  let mapDestination = mapCoordsForCell({ x: cell.x, y: cell.y }, map);
   let tileOffsets = map.tileOffsets;
   let mapLocation = {
     x: mapDestination.x + tileOffsets.x - frameOffsets.x,
     y: mapDestination.y + tileOffsets.y - frameOffsets.y
   };
   return mapLocation;
+};
+
+export const mapCoordsForCell = (cellCoords, map) => {
+  let xOffset = (map.mapSize * map.tileWidth) / 2 - map.tileWidth / 2;
+  let mapX = (cellCoords.x - cellCoords.y) * (map.tileWidth / 2) + xOffset;
+  let mapY = (cellCoords.x + cellCoords.y) * (map.tileHeight / 2);
+  return { x: mapX, y: mapY };
 };
 
 export const Facing = {

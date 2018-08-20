@@ -5,10 +5,11 @@ import './styles/index.css';
 import { Input } from './input';
 import Scene from './scene';
 import { sceneDef } from './scene_definition';
+import { PubSub } from './pub_sub';
 import { throttle } from './util';
 
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('Proxma Reverie approaches!');
+  console.log('Proxima Reverie approaches!');
 
   let tickLength = 50;
 
@@ -60,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
   viewport.addEventListener(
     'mousemove',
     throttle(event => {
-      scene.mousemove(event);
+      PubSub.publish('mousemove', event);
     }, 20)
   );
 });
