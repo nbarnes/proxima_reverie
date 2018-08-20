@@ -1,6 +1,7 @@
 'use strict';
 
 import { Assets } from './asset_manager';
+import { PubSub } from './pub_sub';
 
 const TileHighlightPaths = [
   './src/img/tile_highlights/black_outline_blur.png',
@@ -11,19 +12,36 @@ const TileHighlightPaths = [
 ];
 
 export const TileHighlighter = (function() {
-  let tileHighlight = undefined;
+  let activeMobileHighlight = undefined;
+  let cursorHighlight = undefined;
+
   function mouseAt(map, cellLocation) {
-    tileHighlight = new TileHighlight(
+    cursorHighlight = new TileHighlight(
       './src/img/tile_highlights/yellow_transparent_full_tile.png',
       map.mapCoordsForCell(cellLocation)
     );
   }
 
   function draw(context, viewportOffsets, tileSize) {
-    if (tileHighlight != undefined) {
-      tileHighlight.draw(context, viewportOffsets, tileSize);
+    if (cursorHighlight != undefined) {
+      cursorHighlight.draw(context, viewportOffsets, tileSize);
+    }
+    if (activeMobileHighlight != undefined) {
+      activeMobileHighlight.draw(context, viewportOffsets, tileSize);
     }
   }
+
+  PubSub.subscribe('activeMobileChanged', data => {
+    activeMobileHighlight = new TileHighlight(
+      './src/img/tile_highlights/red_transparent_full_tile.png',
+      data.map.mapCoordsForCell(data.mobile.cellLocation)
+    );
+  });
+
+  PubSub.subscribe('mobileMoveStarted', () => {
+    cursorHighlight = undefined;
+    activeMobileHighlight = undefined;
+  });
 
   return {
     mouseAt: mouseAt,

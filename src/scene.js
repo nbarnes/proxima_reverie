@@ -22,7 +22,8 @@ export default class Scene {
     this.mobiles = sceneDef.mobileDefs.map(mobileDef => {
       return new Entity(mobileDef, this, new MobileBrain());
     });
-    this.activeMobile = this.mobiles[0];
+    this.activeMobile = undefined;
+    this.activateNextMobile();
     this.props = sceneDef.propDefs.map(propDef => {
       return new Entity(propDef, this);
     });
@@ -41,12 +42,13 @@ export default class Scene {
       }
     );
 
-    PubSub.subscribe('blockingAnimationStarted', () => {
+    PubSub.subscribe('mobileMoveStarted', () => {
       this.waitingOnAnimation = true;
     });
 
-    PubSub.subscribe('blockingAnimationFinished', () => {
+    PubSub.subscribe('mobileMoveFinished', () => {
       this.waitingOnAnimation = false;
+      this.activateNextMobile();
     });
 
     this.waitingOnAnimation = false;
@@ -131,20 +133,12 @@ export default class Scene {
       this.activeMobile.respondToMouse(
         this.map.cellAt(cellPosition),
         () => {
-          PubSub.publish('blockingAnimationStarted');
+          PubSub.publish('mobileMoveStarted');
         },
         () => {
-          PubSub.publish('blockingAnimationFinished');
+          PubSub.publish('mobileMoveFinished');
         }
       );
-
-      if (this.mobiles.slice(-1)[0] == this.activeMobile) {
-        this.activeMobile = this.mobiles[0];
-      } else {
-        this.activeMobile = this.mobiles[
-          this.mobiles.indexOf(this.activeMobile) + 1
-        ];
-      }
     }
   }
 
@@ -160,6 +154,23 @@ export default class Scene {
       entity.cellLocation.x + entity.cellLocation.y,
       entity
     );
+  }
+
+  activateNextMobile() {
+    if (
+      this.mobiles.slice(-1)[0] == this.activeMobile ||
+      this.activeMobile == undefined
+    ) {
+      this.activeMobile = this.mobiles[0];
+    } else {
+      this.activeMobile = this.mobiles[
+        this.mobiles.indexOf(this.activeMobile) + 1
+      ];
+    }
+    PubSub.publish('activeMobileChanged', {
+      map: this.map,
+      mobile: this.activeMobile
+    });
   }
 }
 
