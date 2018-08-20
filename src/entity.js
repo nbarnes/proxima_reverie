@@ -30,7 +30,6 @@ export default class Entity extends AssetOwner {
   }
 
   get location() {
-    // console.log(this.myLocation);
     return this.myLocation;
   }
 

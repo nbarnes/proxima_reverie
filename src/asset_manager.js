@@ -26,6 +26,12 @@ export const Assets = (function() {
         assets[assetPath] = asset;
         assetsRemaining--;
         if (assetsRemaining <= 0) {
+          document
+            .getElementById('loading-images-message')
+            .classList.add('hide');
+          document
+            .getElementById('images-loaded-message')
+            .classList.remove('hide');
           callback();
         }
       };
