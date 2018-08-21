@@ -76,7 +76,11 @@ export default class Entity extends AssetOwner {
   }
 
   respondToMouse(eventCell, startCallback, endCallback) {
-    if (this.activity == undefined && this.brain != undefined) {
+    if (
+      this.activity == undefined &&
+      this.brain != undefined &&
+      eventCell.pathable()
+    ) {
       this.activity = this.brain.getActivity(
         this,
         eventCell,
@@ -116,5 +120,9 @@ export default class Entity extends AssetOwner {
         this.activity();
       }
     } while (i++ < tickCount);
+  }
+
+  isSelectedMobile() {
+    return this.scene.activeMobile === this;
   }
 }

@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   viewport.addEventListener('mouseup', event => {
-    scene.mouseup(event);
+    PubSub.publish('mouseup', event);
   });
 
   viewport.addEventListener(

@@ -22,7 +22,6 @@ export default class Scene {
     this.mobiles = sceneDef.mobileDefs.map(mobileDef => {
       return new Entity(mobileDef, this, new MobileBrain());
     });
-    this.activeMobile = undefined;
     this.activateNextMobile();
     this.props = sceneDef.propDefs.map(propDef => {
       return new Entity(propDef, this);
@@ -68,6 +67,35 @@ export default class Scene {
           cellLocation: cellLocation,
           map: this.map
         });
+      }
+    });
+
+    PubSub.subscribe('mouseup', event => {
+      let cellPosition = getMouseEventCellPosition(
+        event,
+        this.viewport,
+        this.viewportOffsets,
+        this.map
+      );
+
+      if (!this.waitingOnAnimation) {
+        let cellContents = this.map.cellAt(cellPosition).contents[0];
+        if (
+          this.mobiles.includes(cellContents) &&
+          cellContents != this.activeMobile
+        ) {
+          this.activeMobile = cellContents;
+        } else {
+          this.activeMobile.respondToMouse(
+            this.map.cellAt(cellPosition),
+            () => {
+              PubSub.publish('mobileMoveStarted');
+            },
+            () => {
+              PubSub.publish('mobileMoveFinished');
+            }
+          );
+        }
       }
     });
   }
@@ -125,27 +153,6 @@ export default class Scene {
     });
   }
 
-  mouseup(event) {
-    let cellPosition = getMouseEventCellPosition(
-      event,
-      this.viewport,
-      this.viewportOffsets,
-      this.map
-    );
-
-    if (!this.waitingOnAnimation) {
-      this.activeMobile.respondToMouse(
-        this.map.cellAt(cellPosition),
-        () => {
-          PubSub.publish('mobileMoveStarted');
-        },
-        () => {
-          PubSub.publish('mobileMoveFinished');
-        }
-      );
-    }
-  }
-
   addEntityToDraw(entity) {
     this.drawOrderSortedEntities.insert(
       entity.cellLocation.x + entity.cellLocation.y,
@@ -171,10 +178,18 @@ export default class Scene {
         this.mobiles.indexOf(this.activeMobile) + 1
       ];
     }
+  }
+
+  set activeMobile(newActiveMobile) {
+    this.myActiveMobile = newActiveMobile;
     PubSub.publish('activeMobileChanged', {
       map: this.map,
       mobile: this.activeMobile
     });
+  }
+
+  get activeMobile() {
+    return this.myActiveMobile;
   }
 }
 
