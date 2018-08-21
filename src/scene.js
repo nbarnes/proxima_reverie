@@ -184,7 +184,7 @@ export default class Scene {
     this.myActiveMobile = newActiveMobile;
     if (newActiveMobile != undefined) {
       let newOffsets = mapCoordsForCell(newActiveMobile.cellLocation, this.map);
-      newOffsets.x -= this.viewport.width / 2;
+      newOffsets.x -= this.viewport.width / 2 - this.map.tileWidth / 2;
       newOffsets.y -= this.viewport.height / 2;
       this.viewportOffsets = newOffsets;
     }
@@ -222,31 +222,3 @@ function getMouseEventCellPosition(event, viewport, viewportOffsets, map) {
   };
   return { x: Math.floor(cellPosition.x), y: Math.floor(cellPosition.y) };
 }
-
-// function viewportOffsetsForCellPosition(cellPosition, viewport, map) {
-//   let mapCoords = mapCoordsForCell(cellPosition, map);
-//   mapCoords.x -= viewport.width / 2;
-//   mapCoords.y -= viewport.height / 2;
-//   let mapWidth = map.mapCanvas.width,
-//     mapHeight = map.mapCanvas.height;
-//   // let minXOffset = viewport.width / 2,
-//   //   minYOffset = viewport.height / 2;
-//   let minXOffset = 0,
-//     minYOffset = 0;
-//   let maxXOffset = mapWidth - minXOffset,
-//     maxYOffset = mapHeight - minYOffset;
-//   // let maxXOffset = 0,
-//   //   maxYOffset = 0;
-//   if (mapCoords.x < minXOffset) {
-//     mapCoords.x = minXOffset;
-//   } else if (mapCoords.x > maxXOffset) {
-//     mapCoords.x = maxXOffset;
-//   }
-//   if (mapCoords.y < minYOffset) {
-//     mapCoords.y = minYOffset;
-//   } else if (mapCoords.y > maxYOffset) {
-//     mapCoords.y = maxYOffset;
-//   }
-//   console.log(`new offsets are x${mapCoords.x}, y${mapCoords.y}`);
-//   return mapCoords;
-// }
