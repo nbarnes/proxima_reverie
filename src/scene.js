@@ -7,11 +7,12 @@ import { Assets } from './asset_manager';
 import { MobileBrain } from './brain';
 import { TileHighlighter } from './tile_highlighter';
 import { PubSub } from './pub_sub';
+import { mapCoordsForCell } from './util';
 
 const BinarySearchTree = require('binary-search-tree').BinarySearchTree;
 
 export default class Scene {
-  constructor(sceneDef, viewport, viewportDimensions, loadCompleteCallback) {
+  constructor(sceneDef, viewport, loadCompleteCallback) {
     let tiles = sceneDef.mapDef.tileImagePaths.map(tileImagePath => {
       return new Tile([tileImagePath]);
     });
@@ -22,13 +23,11 @@ export default class Scene {
     this.mobiles = sceneDef.mobileDefs.map(mobileDef => {
       return new Entity(mobileDef, this, new MobileBrain());
     });
-    this.activateNextMobile();
     this.props = sceneDef.propDefs.map(propDef => {
       return new Entity(propDef, this);
     });
 
     this.viewport = viewport;
-    this.viewportDimensions = viewportDimensions;
 
     this.waitingOnAnimation = false;
 
@@ -37,10 +36,14 @@ export default class Scene {
       () => {
         // the viewport offsets are set in the loading callback because the
         // tile image assets need to be fully loaded before the map can be drawn
-        this.viewportOffsets = {
-          x: this.map.mapCanvas.width / 2 - viewportDimensions.x / 2,
-          y: this.map.mapCanvas.height / 2 - viewportDimensions.y / 2
-        };
+        if (this.mobiles.length > 0) {
+          this.activateNextMobile();
+        } else {
+          this.viewportOffsets = {
+            x: this.map.mapCanvas.width / 2 - viewport.width / 2,
+            y: this.map.mapCanvas.height / 2 - viewport.height / 2
+          };
+        }
         this.assetsLoaded = true;
         loadCompleteCallback();
       }
@@ -113,22 +116,19 @@ export default class Scene {
 
   draw() {
     let context = this.viewport.getContext('2d');
-    context.clearRect(
-      0,
-      0,
-      this.viewportDimensions.x,
-      this.viewportDimensions.y
-    );
+    context.rect(0, 0, this.viewport.width, this.viewport.height);
+    context.fillStyle = 'darkgrey';
+    context.fill();
     context.drawImage(
       this.map.mapCanvas,
       this.viewportOffsets.x,
       this.viewportOffsets.y,
-      this.viewportDimensions.x,
-      this.viewportDimensions.y,
+      this.viewport.width,
+      this.viewport.height,
       0,
       0,
-      this.viewportDimensions.x,
-      this.viewportDimensions.y
+      this.viewport.width,
+      this.viewport.height
     );
 
     TileHighlighter.draw(context, this.viewportOffsets, {
@@ -182,6 +182,12 @@ export default class Scene {
 
   set activeMobile(newActiveMobile) {
     this.myActiveMobile = newActiveMobile;
+    if (newActiveMobile != undefined) {
+      let newOffsets = mapCoordsForCell(newActiveMobile.cellLocation, this.map);
+      newOffsets.x -= this.viewport.width / 2;
+      newOffsets.y -= this.viewport.height / 2;
+      this.viewportOffsets = newOffsets;
+    }
     PubSub.publish('activeMobileChanged', {
       map: this.map,
       mobile: this.activeMobile
@@ -216,3 +222,31 @@ function getMouseEventCellPosition(event, viewport, viewportOffsets, map) {
   };
   return { x: Math.floor(cellPosition.x), y: Math.floor(cellPosition.y) };
 }
+
+// function viewportOffsetsForCellPosition(cellPosition, viewport, map) {
+//   let mapCoords = mapCoordsForCell(cellPosition, map);
+//   mapCoords.x -= viewport.width / 2;
+//   mapCoords.y -= viewport.height / 2;
+//   let mapWidth = map.mapCanvas.width,
+//     mapHeight = map.mapCanvas.height;
+//   // let minXOffset = viewport.width / 2,
+//   //   minYOffset = viewport.height / 2;
+//   let minXOffset = 0,
+//     minYOffset = 0;
+//   let maxXOffset = mapWidth - minXOffset,
+//     maxYOffset = mapHeight - minYOffset;
+//   // let maxXOffset = 0,
+//   //   maxYOffset = 0;
+//   if (mapCoords.x < minXOffset) {
+//     mapCoords.x = minXOffset;
+//   } else if (mapCoords.x > maxXOffset) {
+//     mapCoords.x = maxXOffset;
+//   }
+//   if (mapCoords.y < minYOffset) {
+//     mapCoords.y = minYOffset;
+//   } else if (mapCoords.y > maxYOffset) {
+//     mapCoords.y = maxYOffset;
+//   }
+//   console.log(`new offsets are x${mapCoords.x}, y${mapCoords.y}`);
+//   return mapCoords;
+// }

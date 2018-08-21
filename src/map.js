@@ -62,12 +62,15 @@ function buildCells(map) {
 
 function drawMapCanvas(map) {
   let mapCanvas = document.createElement('canvas');
-  mapCanvas.width = map.mapSize * map.tileWidth - map.mapSize;
-  mapCanvas.height = map.mapSize * map.tileHeight - map.mapSize;
-
+  mapCanvas.width = map.mapSize * map.tileWidth;
+  mapCanvas.height = map.mapSize * map.tileHeight;
+  let context = mapCanvas.getContext('2d');
+  context.rect(0, 0, mapCanvas.width, mapCanvas.height);
+  context.fillStyle = 'lightgrey';
+  context.fill();
   for (let [x, row] of map.cells.entries()) {
     for (let [y, cell] of row.entries()) {
-      drawTile(map, mapCanvas.getContext('2d'), cell.tile, x, y);
+      drawTile(map, context, cell.tile, x, y);
     }
   }
   return mapCanvas;

@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     requestAnimationFrame(loop);
   };
 
-  let scene = new Scene(sceneDef, viewport, viewportDimensions, () => {
+  let scene = new Scene(sceneDef, viewport, () => {
     requestAnimationFrame(loop);
   });
 
