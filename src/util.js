@@ -60,3 +60,40 @@ export const Facing = {
 export const sleep = ms => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
+
+// Uses Brensenham's line algorithm
+export const buildPathBrensenham = (start, end, useDiagonal) => {
+  let path = [];
+
+  let currentX = start.x,
+    currentY = start.y;
+  let deltaX = Math.abs(end.x - start.x),
+    deltaY = Math.abs(end.y - start.y);
+  let slopeX = start.x < end.x ? 1 : -1,
+    slopeY = start.y < end.y ? 1 : -1;
+  let err = deltaX - deltaY;
+
+  while (currentX != end.x || currentY != end.y) {
+    if (useDiagonal) {
+      if (2 * err > deltaY * -1) {
+        err -= deltaY;
+        currentX += slopeX;
+      }
+      if (2 * err < deltaX) {
+        err += deltaX;
+        currentY += slopeY;
+      }
+    } else {
+      if (2 * err > deltaY * -1) {
+        err -= deltaY;
+        currentX += slopeX;
+      } else if (2 * err < deltaX) {
+        err += deltaX;
+        currentY += slopeY;
+      }
+    }
+
+    path.push({ x: currentX, y: currentY });
+  }
+  return path;
+};

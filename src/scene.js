@@ -7,7 +7,7 @@ import { Assets } from './asset_manager';
 import { MobileBrain } from './brain';
 import { TileHighlighter } from './tile_highlighter';
 import { PubSub } from './pub_sub';
-import { mapCoordsForCell } from './util';
+import { mapCoordsForCell, coordsEqual, buildPathBrensenham } from './util';
 
 const BinarySearchTree = require('binary-search-tree').BinarySearchTree;
 
@@ -26,10 +26,11 @@ export default class Scene {
     this.props = sceneDef.propDefs.map(propDef => {
       return new Entity(propDef, this);
     });
+    this.camera_scroll = undefined;
 
     this.viewport = viewport;
 
-    this.waitingOnAnimation = false;
+    this.inputDisabled = false;
 
     Assets.loadAssets(
       [...tiles, ...this.mobiles, ...this.props, TileHighlighter],
@@ -49,12 +50,12 @@ export default class Scene {
       }
     );
 
-    PubSub.subscribe('mobileMoveStarted', () => {
-      this.waitingOnAnimation = true;
+    PubSub.subscribe('inputBlockingActivityStarted', () => {
+      this.inputDisabled = true;
     });
 
-    PubSub.subscribe('mobileMoveFinished', () => {
-      this.waitingOnAnimation = false;
+    PubSub.subscribe('inputBlockingActivityFinished', () => {
+      this.inputDisabled = false;
       this.activateNextMobile();
     });
 
@@ -81,7 +82,7 @@ export default class Scene {
         this.map
       );
 
-      if (!this.waitingOnAnimation) {
+      if (!this.inputDisabled) {
         let cellContents = this.map.cellAt(cellPosition).contents[0];
         if (
           this.mobiles.includes(cellContents) &&
@@ -92,10 +93,10 @@ export default class Scene {
           this.activeMobile.respondToMouse(
             this.map.cellAt(cellPosition),
             () => {
-              PubSub.publish('mobileMoveStarted');
+              PubSub.publish('inputBlockingActivityStarted');
             },
             () => {
-              PubSub.publish('mobileMoveFinished');
+              PubSub.publish('inputBlockingActivityFinished');
             }
           );
         }
@@ -105,12 +106,15 @@ export default class Scene {
 
   tick(ticksElapsed) {
     if (ticksElapsed > 0) {
-      this.mobiles.forEach(mobile => {
+      if (this.camera_scroll != undefined) {
+        this.camera_scroll.advance(ticksElapsed);
+      }
+      for (let mobile of this.mobiles) {
         mobile.tick(ticksElapsed);
-      });
-      this.props.forEach(prop => {
+      }
+      for (let prop of this.props) {
         prop.tick(ticksElapsed);
-      });
+      }
     }
   }
 
@@ -186,7 +190,7 @@ export default class Scene {
       let newOffsets = mapCoordsForCell(newActiveMobile.cellLocation, this.map);
       newOffsets.x -= this.viewport.width / 2 - this.map.tileWidth / 2;
       newOffsets.y -= this.viewport.height / 2;
-      this.viewportOffsets = newOffsets;
+      this.zoomToLocation(newOffsets);
     }
     PubSub.publish('activeMobileChanged', {
       map: this.map,
@@ -196,6 +200,34 @@ export default class Scene {
 
   get activeMobile() {
     return this.myActiveMobile;
+  }
+
+  zoomToLocation(location) {
+    if (this.viewportOffsets != undefined) {
+      this.inputDisabled = true;
+      let zoomTrack = buildPathBrensenham(this.viewportOffsets, location);
+      // console.log(zoomTrack);
+      this.camera_scroll = {
+        advance: nTimes => {
+          let i = 0;
+          do {
+            if (zoomTrack.length > 0) {
+              let newPosition = zoomTrack.shift();
+              this.viewportOffsets = {
+                x: newPosition.x,
+                y: newPosition.y
+              };
+              if (zoomTrack.length == 0) {
+                this.inputDisabled = false;
+                this.camera_scroll = undefined;
+              }
+            }
+          } while (i++ < nTimes * 10);
+        }
+      };
+    } else {
+      this.viewportOffsets = location;
+    }
   }
 }
 

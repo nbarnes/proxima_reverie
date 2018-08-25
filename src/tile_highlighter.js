@@ -15,10 +15,10 @@ const TileHighlightPaths = [
 export const TileHighlighter = (function() {
   let activeMobileHighlight = undefined;
   let cursorHighlight = undefined;
-  let mobileMoving = false;
+  let inputDisabled = false;
 
   function draw(context, viewportOffsets, tileSize) {
-    if (!mobileMoving) {
+    if (!inputDisabled) {
       if (cursorHighlight != undefined) {
         cursorHighlight.draw(context, viewportOffsets, tileSize);
       }
@@ -35,12 +35,12 @@ export const TileHighlighter = (function() {
     );
   });
 
-  PubSub.subscribe('mobileMoveStarted', () => {
-    mobileMoving = true;
+  PubSub.subscribe('inputBlockingActivityStarted', () => {
+    inputDisabled = true;
   });
 
-  PubSub.subscribe('mobileMoveFinished', () => {
-    mobileMoving = false;
+  PubSub.subscribe('inputBlockingActivityFinished', () => {
+    inputDisabled = false;
   });
 
   PubSub.subscribe('mouseOverCell', data => {

@@ -64,32 +64,6 @@ function getDestination(entity, cellPath) {
   return nextDestination;
 }
 
-// Uses Brensenham's line algorithm
-function buildPath(start, end) {
-  let path = [];
-
-  let currentX = start.x,
-    currentY = start.y;
-  let deltaX = Math.abs(end.x - start.x),
-    deltaY = Math.abs(end.y - start.y);
-  let slopeX = start.x < end.x ? 1 : -1,
-    slopeY = start.y < end.y ? 1 : -1;
-  let err = deltaX - deltaY;
-
-  while (currentX != end.x || currentY != end.y) {
-    let err2 = 2 * err;
-    if (err2 > deltaY * -1) {
-      err -= deltaY;
-      currentX += slopeX;
-    } else if (err2 < deltaX) {
-      err += deltaX;
-      currentY += slopeY;
-    }
-    path.push({ x: currentX, y: currentY });
-  }
-  return path;
-}
-
 function buildPathAStar(start, end) {
   let open = new BinaryHeap(
     a => {
