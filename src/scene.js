@@ -7,7 +7,7 @@ import { Assets } from './asset_manager';
 import { MobileBrain } from './brain';
 import { TileHighlighter } from './tile_highlighter';
 import { PubSub } from './pub_sub';
-import { mapCoordsForCell, buildPathBrensenham } from './util';
+import { mapCoordsForCell, buildPathBrensenham, coordsInBounds } from './util';
 
 const BinarySearchTree = require('binary-search-tree').BinarySearchTree;
 
@@ -67,10 +67,12 @@ export default class Scene {
           this.viewportOffsets,
           this.map
         );
-        PubSub.publish('mouseOverCell', {
-          cellLocation: cellLocation,
-          map: this.map
-        });
+        if (cellLocation) {
+          PubSub.publish('mouseOverCell', {
+            cellLocation: cellLocation,
+            map: this.map
+          });
+        }
       }
     });
 
@@ -82,7 +84,7 @@ export default class Scene {
         this.map
       );
 
-      if (!this.inputDisabled) {
+      if (cellPosition != undefined && !this.inputDisabled) {
         let cellContents = this.map.cellAt(cellPosition).contents[0];
         if (
           this.mobiles.includes(cellContents) &&
@@ -239,7 +241,7 @@ function getMouseEventCellPosition(event, viewport, viewportOffsets, map) {
   let halfTileWidth = map.tileWidth / 2;
   let halfTileHeight = map.tileHeight / 2;
   let halfMapSize = map.mapSize / 2;
-  let cellPosition = {
+  let fractionalCellPosition = {
     x:
       (mapPosition.x / halfTileWidth + mapPosition.y / halfTileHeight) / 2 -
       halfMapSize,
@@ -247,5 +249,13 @@ function getMouseEventCellPosition(event, viewport, viewportOffsets, map) {
       (mapPosition.y / halfTileHeight - mapPosition.x / halfTileWidth) / 2 +
       halfMapSize
   };
-  return { x: Math.floor(cellPosition.x), y: Math.floor(cellPosition.y) };
+  let cellPosition = {
+    x: Math.floor(fractionalCellPosition.x),
+    y: Math.floor(fractionalCellPosition.y)
+  };
+  if (coordsInBounds(cellPosition, map.mapSize)) {
+    return cellPosition;
+  } else {
+    return undefined;
+  }
 }

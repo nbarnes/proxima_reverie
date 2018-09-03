@@ -97,3 +97,12 @@ export const buildPathBrensenham = (start, end, useDiagonal) => {
   }
   return path;
 };
+
+export const coordsInBounds = (coords, boundingSize) => {
+  return (
+    coords.x >= 0 &&
+    coords.y >= 0 &&
+    coords.x < boundingSize &&
+    coords.y < boundingSize
+  );
+};

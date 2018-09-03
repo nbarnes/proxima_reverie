@@ -24,7 +24,11 @@ export default class Map {
   }
 
   cellAt(coords) {
-    return this.cells[coords.x][coords.y];
+    let row = this.cells[coords.x];
+    if (row != undefined) {
+      return row[coords.y];
+    }
+    return undefined;
   }
 
   neighbors(coords) {
