@@ -7,7 +7,7 @@ import { Assets } from './asset_manager';
 import { MobileBrain } from './brain';
 import { TileHighlighter } from './tile_highlighter';
 import { PubSub } from './pub_sub';
-import { mapCoordsForCell, coordsEqual, buildPathBrensenham } from './util';
+import { mapCoordsForCell, buildPathBrensenham } from './util';
 
 const BinarySearchTree = require('binary-search-tree').BinarySearchTree;
 
@@ -206,17 +206,12 @@ export default class Scene {
     if (this.viewportOffsets != undefined) {
       this.inputDisabled = true;
       let zoomTrack = buildPathBrensenham(this.viewportOffsets, location);
-      // console.log(zoomTrack);
       this.camera_scroll = {
         advance: nTimes => {
           let i = 0;
           do {
             if (zoomTrack.length > 0) {
-              let newPosition = zoomTrack.shift();
-              this.viewportOffsets = {
-                x: newPosition.x,
-                y: newPosition.y
-              };
+              this.viewportOffsets = zoomTrack.shift();
               if (zoomTrack.length == 0) {
                 this.inputDisabled = false;
                 this.camera_scroll = undefined;
