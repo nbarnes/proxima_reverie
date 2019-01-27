@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-import { Assets } from './asset_manager';
-import AssetOwner from './asset_owner';
-import { entityMapLocationFromCell, Facing, coordsEqual } from './util';
+import { Assets } from "./asset_manager";
+import AssetOwner from "./asset_owner";
+import { entityMapLocationFromCell, Facing, coordsEqual } from "./util";
 
 export default class Entity extends AssetOwner {
   constructor(entityDef, scene, brain) {

@@ -1,19 +1,19 @@
-'use strict';
+"use strict";
 
-import './styles/index.css';
+import "./styles/index.css";
 
-import { Input } from './input';
-import Scene from './scene';
-import { sceneDef } from './scene_definition';
-import { PubSub } from './pub_sub';
-import { throttle } from './util';
+import { Input } from "./input";
+import Scene from "./scene";
+import { sceneDef } from "./scene_definition";
+import { PubSub } from "./pub_sub";
+import { throttle } from "./util";
 
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('Proxima Reverie approaches!');
+document.addEventListener("DOMContentLoaded", function() {
+  console.log("Proxima Reverie approaches!");
 
   let tickLength = 50;
 
-  var viewport = document.getElementById('viewport-canvas');
+  var viewport = document.getElementById("viewport-canvas");
   let viewportDimensions = { x: 600, y: 400 };
   // @ts-ignore
   viewport.width = viewportDimensions.x;
@@ -46,22 +46,22 @@ document.addEventListener('DOMContentLoaded', function() {
     requestAnimationFrame(loop);
   });
 
-  document.addEventListener('keydown', event => {
+  document.addEventListener("keydown", event => {
     Input.keyDown(event.key);
   });
 
-  document.addEventListener('keyup', event => {
+  document.addEventListener("keyup", event => {
     Input.keyUp(event.key);
   });
 
-  viewport.addEventListener('mouseup', event => {
-    PubSub.publish('mouseup', event);
+  viewport.addEventListener("mouseup", event => {
+    PubSub.publish("mouseup", event);
   });
 
   viewport.addEventListener(
-    'mousemove',
+    "mousemove",
     throttle(event => {
-      PubSub.publish('mousemove', event);
+      PubSub.publish("mousemove", event);
     }, 20)
   );
 });

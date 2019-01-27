@@ -2,7 +2,7 @@
 // http://eloquentjavascript.net/1st_edition/appendix2.html
 // by Marijn Haverbeke
 
-'use strict';
+"use strict";
 
 export class BinaryHeap {
   constructor(scoreFunction, equalityFunction) {

@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-import { rand, mapCoordsForCell } from './util';
-import Cell from './cell';
+import { rand, mapCoordsForCell } from "./util";
+import Cell from "./cell";
 
 export default class Map {
   constructor(tiles, mapSize) {
@@ -65,12 +65,12 @@ function buildCells(map) {
 }
 
 function drawMapCanvas(map) {
-  let mapCanvas = document.createElement('canvas');
+  let mapCanvas = document.createElement("canvas");
   mapCanvas.width = map.mapSize * map.tileWidth;
   mapCanvas.height = map.mapSize * map.tileHeight;
-  let context = mapCanvas.getContext('2d');
+  let context = mapCanvas.getContext("2d");
   context.rect(0, 0, mapCanvas.width, mapCanvas.height);
-  context.fillStyle = 'lightgrey';
+  context.fillStyle = "lightgrey";
   context.fill();
   for (let [x, row] of map.cells.entries()) {
     for (let [y, cell] of row.entries()) {

@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 export const Assets = (function() {
   let assets = {};
@@ -6,13 +6,13 @@ export const Assets = (function() {
   function loadAssets(assetOwners, callback) {
     let tempAssetPaths = [];
     for (let assetOwner of assetOwners) {
-      if (assetOwner.constructor.name == 'String') {
+      if (assetOwner.constructor.name == "String") {
         console.log(
-          'A string has been passed to Assets.loadAssets instead of an AssetOwner'
+          "A string has been passed to Assets.loadAssets instead of an AssetOwner"
         );
-      } else if (assetOwner.constructor.name == 'Array') {
+      } else if (assetOwner.constructor.name == "Array") {
         console.log(
-          'An array has been passed to Assets.loadAssets instead of an AssetOwner'
+          "An array has been passed to Assets.loadAssets instead of an AssetOwner"
         );
       }
       tempAssetPaths = tempAssetPaths.concat(assetOwner.assetPaths);
@@ -27,11 +27,11 @@ export const Assets = (function() {
         assetsRemaining--;
         if (assetsRemaining <= 0) {
           document
-            .getElementById('loading-images-message')
-            .classList.add('hide');
+            .getElementById("loading-images-message")
+            .classList.add("hide");
           document
-            .getElementById('images-loaded-message')
-            .classList.remove('hide');
+            .getElementById("images-loaded-message")
+            .classList.remove("hide");
           callback();
         }
       };

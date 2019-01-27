@@ -1,15 +1,15 @@
-'use strict';
+"use strict";
 
-import Tile from './tile';
-import Map from './map';
-import Entity from './entity';
-import { Assets } from './asset_manager';
-import { MobileBrain } from './brain';
-import { TileHighlighter } from './tile_highlighter';
-import { PubSub } from './pub_sub';
-import { mapCoordsForCell, buildPathBrensenham, coordsInBounds } from './util';
+import Tile from "./tile";
+import Map from "./map";
+import Entity from "./entity";
+import { Assets } from "./asset_manager";
+import { MobileBrain } from "./brain";
+import { TileHighlighter } from "./tile_highlighter";
+import { PubSub } from "./pub_sub";
+import { mapCoordsForCell, buildPathBrensenham, coordsInBounds } from "./util";
 
-const BinarySearchTree = require('binary-search-tree').BinarySearchTree;
+const BinarySearchTree = require("binary-search-tree").BinarySearchTree;
 
 export default class Scene {
   constructor(sceneDef, viewport, loadCompleteCallback) {
@@ -50,16 +50,16 @@ export default class Scene {
       }
     );
 
-    PubSub.subscribe('inputBlockingActivityStarted', () => {
+    PubSub.subscribe("inputBlockingActivityStarted", () => {
       this.inputDisabled = true;
     });
 
-    PubSub.subscribe('inputBlockingActivityFinished', () => {
+    PubSub.subscribe("inputBlockingActivityFinished", () => {
       this.inputDisabled = false;
       this.activateNextMobile();
     });
 
-    PubSub.subscribe('mousemove', event => {
+    PubSub.subscribe("mousemove", event => {
       if (this.assetsLoaded) {
         let cellLocation = getMouseEventCellPosition(
           event,
@@ -68,7 +68,7 @@ export default class Scene {
           this.map
         );
         if (cellLocation) {
-          PubSub.publish('mouseOverCell', {
+          PubSub.publish("mouseOverCell", {
             cellLocation: cellLocation,
             map: this.map
           });
@@ -76,7 +76,7 @@ export default class Scene {
       }
     });
 
-    PubSub.subscribe('mouseup', event => {
+    PubSub.subscribe("mouseup", event => {
       let cellPosition = getMouseEventCellPosition(
         event,
         this.viewport,
@@ -95,10 +95,10 @@ export default class Scene {
           this.activeMobile.respondToMouse(
             this.map.cellAt(cellPosition),
             () => {
-              PubSub.publish('inputBlockingActivityStarted');
+              PubSub.publish("inputBlockingActivityStarted");
             },
             () => {
-              PubSub.publish('inputBlockingActivityFinished');
+              PubSub.publish("inputBlockingActivityFinished");
             }
           );
         }
@@ -121,9 +121,9 @@ export default class Scene {
   }
 
   draw() {
-    let context = this.viewport.getContext('2d');
+    let context = this.viewport.getContext("2d");
     context.rect(0, 0, this.viewport.width, this.viewport.height);
-    context.fillStyle = 'darkgrey';
+    context.fillStyle = "darkgrey";
     context.fill();
     context.drawImage(
       this.map.mapCanvas,
@@ -194,7 +194,7 @@ export default class Scene {
       newOffsets.y -= this.viewport.height / 2;
       this.zoomToLocation(newOffsets);
     }
-    PubSub.publish('activeMobileChanged', {
+    PubSub.publish("activeMobileChanged", {
       map: this.map,
       mobile: this.activeMobile
     });

@@ -1,13 +1,13 @@
-const path = require('path');
+const path = require("path");
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
-  entry: './src/index.js',
-  devtool: 'cheap-module-eval-source-map',
+  entry: "./src/index.js",
+  devtool: "cheap-module-eval-source-map",
   output: {
-    filename: 'main.js',
-    path: path.resolve(__dirname, 'dist')
+    filename: "main.js",
+    path: path.resolve(__dirname, "dist")
   },
   plugins: [
     new MiniCssExtractPlugin({
@@ -21,10 +21,7 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          "css-loader"
-        ]
+        use: [MiniCssExtractPlugin.loader, "css-loader"]
       }
     ]
   },

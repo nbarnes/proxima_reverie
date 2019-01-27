@@ -1,11 +1,11 @@
-'use strict';
+"use strict";
 
 import {
   entityMapLocationFromCell,
   coordsEqual,
   arrayIncludesCoords
-} from './util';
-import { BinaryHeap } from './binary_heap';
+} from "./util";
+import { BinaryHeap } from "./binary_heap";
 
 export class MobileBrain {
   getActivity(entity, eventCell, startCallback, endCallback) {

@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 export const rand = max => {
   return Math.floor(Math.random() * Math.floor(max));
@@ -19,7 +19,7 @@ export const throttle = (callback, delay) => {
 
 export const coordsEqual = (a, b) => {
   if (a.x == undefined || b.x == undefined) {
-    console.log('Undefined value in util.coordsEqual');
+    console.log("Undefined value in util.coordsEqual");
     console.log(`a.x: ${a.x} a.y: ${a.y} b.x: ${b.x} b.y: ${b.y}`);
   }
   return a.x == b.x && a.y == b.y;

@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-import { Assets } from './asset_manager';
-import AssetOwner from './asset_owner';
+import { Assets } from "./asset_manager";
+import AssetOwner from "./asset_owner";
 
 export default class Tile extends AssetOwner {
   constructor(assetPaths) {
