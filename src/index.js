@@ -27,6 +27,10 @@ document.addEventListener("DOMContentLoaded", function() {
     let d2 = new Date(),
       currentTime = d2.getTime(),
       timeElapsed = currentTime - lastTime;
+    for (let keyCode of Input.getKeysPressed()) {
+      PubSub.publish(keyCode);
+    }
+    Input.resetInputs();
     let ticksElapsed = Math.floor((timeElapsed + timeRemainder) / tickLength);
     if (ticksElapsed > 0) {
       timeRemainder =

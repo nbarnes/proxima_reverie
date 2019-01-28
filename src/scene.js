@@ -7,7 +7,12 @@ import { Assets } from "./asset_manager";
 import { MobileBrain } from "./brain";
 import { TileHighlighter } from "./tile_highlighter";
 import { PubSub } from "./pub_sub";
-import { mapCoordsForCell, buildPathBrensenham, coordsInBounds } from "./util";
+import {
+  mapCoordsForCell,
+  buildPathBrensenham,
+  coordsInBounds,
+  lesserOf
+} from "./util";
 
 const BinarySearchTree = require("binary-search-tree").BinarySearchTree;
 
@@ -104,6 +109,10 @@ export default class Scene {
         }
       }
     });
+
+    PubSub.subscribe("ArrowUp", event => {
+      console.log("ArrowUp");
+    });
   }
 
   tick(ticksElapsed) {
@@ -192,7 +201,7 @@ export default class Scene {
       let newOffsets = mapCoordsForCell(newActiveMobile.cellLocation, this.map);
       newOffsets.x -= this.viewport.width / 2 - this.map.tileWidth / 2;
       newOffsets.y -= this.viewport.height / 2;
-      this.zoomToLocation(newOffsets);
+      this.scrollToLocation(newOffsets);
     }
     PubSub.publish("activeMobileChanged", {
       map: this.map,
@@ -204,22 +213,20 @@ export default class Scene {
     return this.myActiveMobile;
   }
 
-  zoomToLocation(location) {
+  scrollToLocation(location) {
     if (this.viewportOffsets != undefined) {
       this.inputDisabled = true;
-      let zoomTrack = buildPathBrensenham(this.viewportOffsets, location);
+      let scrollTrack = buildPathBrensenham(this.viewportOffsets, location);
       this.camera_scroll = {
         advance: nTimes => {
-          let i = 0;
-          do {
-            if (zoomTrack.length > 0) {
-              this.viewportOffsets = zoomTrack.shift();
-              if (zoomTrack.length == 0) {
-                this.inputDisabled = false;
-                this.camera_scroll = undefined;
-              }
-            }
-          } while (i++ < nTimes * 10);
+          let scrollDistance = lesserOf(nTimes * 10, scrollTrack.length);
+          scrollTrack = scrollTrack.slice(scrollDistance - 1);
+          let newLoc = scrollTrack.shift();
+          this.viewportOffsets = newLoc;
+          if (scrollTrack.length == 0) {
+            this.inputDisabled = false;
+            this.camera_scroll = undefined;
+          }
         }
       };
     } else {

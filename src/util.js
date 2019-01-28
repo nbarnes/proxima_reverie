@@ -4,6 +4,14 @@ export const rand = max => {
   return Math.floor(Math.random() * Math.floor(max));
 };
 
+export const lesserOf = (a, b) => {
+  if (a <= b) {
+    return a;
+  } else {
+    return b;
+  }
+};
+
 export const throttle = (callback, delay) => {
   let wait = false;
   return function(arg) {
