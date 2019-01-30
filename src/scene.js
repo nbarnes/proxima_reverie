@@ -31,7 +31,7 @@ export default class Scene {
     this.props = sceneDef.propDefs.map(propDef => {
       return new Entity(propDef, this);
     });
-    this.camera_scroll = undefined;
+    this.cameraScroll = undefined;
 
     this.viewport = viewport;
 
@@ -61,7 +61,6 @@ export default class Scene {
 
     PubSub.subscribe("inputBlockingActivityFinished", () => {
       this.inputDisabled = false;
-      this.activateNextMobile();
     });
 
     PubSub.subscribe("mousemove", event => {
@@ -104,6 +103,7 @@ export default class Scene {
             },
             () => {
               PubSub.publish("inputBlockingActivityFinished");
+              this.activateNextMobile();
             }
           );
         }
@@ -111,14 +111,62 @@ export default class Scene {
     });
 
     PubSub.subscribe("ArrowUp", event => {
-      console.log("ArrowUp");
+      this.cameraScroll = {
+        advance: ticksElapsed => {
+          this.viewportOffsets = {
+            x: this.viewportOffsets.x,
+            y: this.viewportOffsets.y - ticksElapsed * 10
+          };
+          this.cameraScroll = undefined;
+        }
+      };
+      PubSub.publish("inputBlockingActivityFinished");
+    });
+
+    PubSub.subscribe("ArrowRight", event => {
+      this.cameraScroll = {
+        advance: ticksElapsed => {
+          this.viewportOffsets = {
+            x: this.viewportOffsets.x + ticksElapsed * 10,
+            y: this.viewportOffsets.y
+          };
+          this.cameraScroll = undefined;
+        }
+      };
+      PubSub.publish("inputBlockingActivityFinished");
+    });
+
+    PubSub.subscribe("ArrowDown", event => {
+      this.cameraScroll = {
+        advance: ticksElapsed => {
+          this.viewportOffsets = {
+            x: this.viewportOffsets.x,
+            y: this.viewportOffsets.y + ticksElapsed * 10
+          };
+          this.cameraScroll = undefined;
+        }
+      };
+      PubSub.publish("inputBlockingActivityFinished");
+    });
+
+    PubSub.subscribe("ArrowLeft", event => {
+      this.cameraScroll = {
+        advance: ticksElapsed => {
+          this.viewportOffsets = {
+            x: this.viewportOffsets.x - ticksElapsed * 10,
+            y: this.viewportOffsets.y
+          };
+          this.cameraScroll = undefined;
+        }
+      };
+      PubSub.publish("inputBlockingActivityFinished");
     });
   }
 
   tick(ticksElapsed) {
     if (ticksElapsed > 0) {
-      if (this.camera_scroll != undefined) {
-        this.camera_scroll.advance(ticksElapsed);
+      if (this.cameraScroll != undefined) {
+        this.cameraScroll.advance(ticksElapsed);
       }
       for (let mobile of this.mobiles) {
         mobile.tick(ticksElapsed);
@@ -215,17 +263,17 @@ export default class Scene {
 
   scrollToLocation(location) {
     if (this.viewportOffsets != undefined) {
-      this.inputDisabled = true;
+      PubSub.publish("inputBlockingActivityStarted");
       let scrollTrack = buildPathBrensenham(this.viewportOffsets, location);
-      this.camera_scroll = {
-        advance: nTimes => {
-          let scrollDistance = lesserOf(nTimes * 10, scrollTrack.length);
+      this.cameraScroll = {
+        advance: ticksElapsed => {
+          let scrollDistance = lesserOf(ticksElapsed * 10, scrollTrack.length);
           scrollTrack = scrollTrack.slice(scrollDistance - 1);
           let newLoc = scrollTrack.shift();
           this.viewportOffsets = newLoc;
           if (scrollTrack.length == 0) {
-            this.inputDisabled = false;
-            this.camera_scroll = undefined;
+            PubSub.publish("inputBlockingActivityFinished");
+            this.cameraScroll = undefined;
           }
         }
       };
