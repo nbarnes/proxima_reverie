@@ -1,6 +1,8 @@
 "use strict";
 
-export const Assets = (function() {
+import { tileHighlightDefs } from "./resources";
+
+export const AssetManager = (function() {
   let assets = {};
 
   function loadAssets(assetOwners, callback) {
@@ -17,6 +19,10 @@ export const Assets = (function() {
       }
       tempAssetPaths = tempAssetPaths.concat(assetOwner.assetPaths);
     }
+    let utilityAssetPaths = tileHighlightDefs.map(def => {
+      return def.imagePath;
+    });
+    tempAssetPaths = tempAssetPaths.concat(utilityAssetPaths);
     let assetPaths = [...new Set(tempAssetPaths)];
 
     let assetsRemaining = assetPaths.length;

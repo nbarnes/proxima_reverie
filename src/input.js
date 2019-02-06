@@ -3,6 +3,8 @@
 export const Input = (function() {
   let keysDown = [];
   let keysPressed = [];
+  let mouseMovedTo = undefined;
+  let mouseUpAt = undefined;
 
   function keyDown(keyCode) {
     if (keysPressed.indexOf(keyCode) < 0) {
@@ -27,6 +29,18 @@ export const Input = (function() {
     );
   }
 
+  function mouseMove(event) {
+    this.mouseMovedTo = event;
+  }
+
+  function mouseUp(event) {
+    this.mouseUpAt = event;
+  }
+
+  function getMouseActions() {
+    return { mouseMovedTo: this.mouseMovedTo, mouseUpAt: this.mouseUpAt };
+  }
+
   function resetInputs() {
     keysPressed = [];
   }
@@ -35,6 +49,9 @@ export const Input = (function() {
     keyDown: keyDown,
     keyUp: keyUp,
     getKeysPressed: getKeysPressed,
+    mouseMove: mouseMove,
+    mouseUp: mouseUp,
+    getMouseActions: getMouseActions,
     resetInputs: resetInputs
   };
 })();

@@ -42,6 +42,9 @@ export const arrayIncludesCoords = (arr, coord_a) => {
 };
 
 export const entityMapLocationFromCell = (cell, map, frameOffsets) => {
+  if (cell == undefined) {
+    return undefined;
+  }
   let mapDestination = mapCoordsForCell({ x: cell.x, y: cell.y }, map);
   let tileOffsets = map.tileOffsets;
   let mapLocation = {

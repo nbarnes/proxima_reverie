@@ -1,8 +1,6 @@
 "use strict";
 
-import { Assets } from "./asset_manager";
-import { PubSub } from "./pub_sub";
-import { mapCoordsForCell } from "./util";
+import { AssetManager } from "./asset_manager";
 
 const TileHighlightPaths = [
   "./src/img/tile_highlights/black_outline_blur.png",
@@ -28,28 +26,6 @@ export const TileHighlighter = (function() {
     }
   }
 
-  PubSub.subscribe("activeMobileChanged", data => {
-    activeMobileHighlight = new TileHighlight(
-      "./src/img/tile_highlights/red_transparent_full_tile.png",
-      mapCoordsForCell(data.mobile.cellLocation, data.map)
-    );
-  });
-
-  PubSub.subscribe("inputBlockingActivityStarted", () => {
-    inputDisabled = true;
-  });
-
-  PubSub.subscribe("inputBlockingActivityFinished", () => {
-    inputDisabled = false;
-  });
-
-  PubSub.subscribe("mouseOverCell", data => {
-    cursorHighlight = new TileHighlight(
-      "./src/img/tile_highlights/yellow_transparent_full_tile.png",
-      mapCoordsForCell(data.cellLocation, data.map)
-    );
-  });
-
   return {
     draw: draw,
     assetPaths: TileHighlightPaths
@@ -62,7 +38,7 @@ export class TileHighlight {
     this.cellLocation = cellLocation;
   }
   draw(context, viewportOffsets, tileSize) {
-    let asset = Assets.get(this.highlightAssetPath);
+    let asset = AssetManager.get(this.highlightAssetPath);
     context.drawImage(
       asset,
       0,

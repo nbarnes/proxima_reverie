@@ -1,19 +1,22 @@
 "use strict";
 
-import { Assets } from "./asset_manager";
-import AssetOwner from "./asset_owner";
+import { AssetManager } from "./asset_manager";
 import { entityMapLocationFromCell, Facing, coordsEqual } from "./util";
 
-export default class Entity extends AssetOwner {
+export default class Entity {
   constructor(entityDef, scene, brain) {
-    super(entityDef.imagePaths);
+    this.assetPaths = entityDef.imagePaths;
     this.frameSize = entityDef.frameSize;
     this.frameOffsets = entityDef.frameOffsets || { x: 0, y: 0 };
     this.scene = scene;
-    this.cellLocation = this.scene.map.cellAt(
-      entityDef.startCell || { x: 0, y: 0 }
-    );
-    this.addToCell(this.cellLocation);
+    if (entityDef.startCell) {
+      this.cellLocation = this.scene.map.cellAt(entityDef.startCell);
+    } else {
+      this.cellLocation = undefined;
+    }
+    if (this.cellLocation) {
+      this.addToCell(this.cellLocation);
+    }
     this.myLocation = entityMapLocationFromCell(
       this.cellLocation,
       this.scene.map,
@@ -26,7 +29,7 @@ export default class Entity extends AssetOwner {
   }
 
   get image() {
-    return Assets.get(this.assetPaths[0]);
+    return AssetManager.get(this.assetPaths[0]);
   }
 
   get location() {

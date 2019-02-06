@@ -5,7 +5,6 @@ import "./styles/index.css";
 import { Input } from "./input";
 import Scene from "./scene";
 import { sceneDef } from "./scene_definition";
-import { PubSub } from "./pub_sub";
 import { throttle } from "./util";
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -27,9 +26,11 @@ document.addEventListener("DOMContentLoaded", function() {
     let d2 = new Date(),
       currentTime = d2.getTime(),
       timeElapsed = currentTime - lastTime;
-    for (let keyCode of Input.getKeysPressed()) {
-      PubSub.publish(keyCode);
-    }
+
+    // for (let keyCode of Input.getKeysPressed()) {
+    //   PubSub.publish(keyCode);
+    // }
+
     Input.resetInputs();
     let ticksElapsed = Math.floor((timeElapsed + timeRemainder) / tickLength);
     if (ticksElapsed > 0) {
@@ -59,13 +60,13 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   viewport.addEventListener("mouseup", event => {
-    PubSub.publish("mouseup", event);
+    Input.mouseUp(event);
   });
 
   viewport.addEventListener(
     "mousemove",
     throttle(event => {
-      PubSub.publish("mousemove", event);
+      Input.mouseMove(event);
     }, 20)
   );
 });
