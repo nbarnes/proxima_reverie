@@ -1,14 +1,15 @@
 "use strict";
 
-import { Assets } from "./asset_manager";
-import AssetOwner from "./asset_owner";
+import { Asset } from "./assets";
 import { entityMapLocationFromCell, Facing, coordsEqual } from "./util";
 
-export default class Entity extends AssetOwner {
+export default class Entity {
   constructor(entityDef, scene, brain) {
-    super(entityDef.imagePaths);
-    this.frameSize = entityDef.frameSize;
-    this.frameOffsets = entityDef.frameOffsets || { x: 0, y: 0 };
+    this.asset = new Asset(
+      entityDef.imagePath,
+      entityDef.frameSize,
+      entityDef.frameOffsets
+    );
     this.scene = scene;
     this.cellLocation = this.scene.map.cellAt(
       entityDef.startCell || { x: 0, y: 0 }
@@ -17,7 +18,7 @@ export default class Entity extends AssetOwner {
     this.myLocation = entityMapLocationFromCell(
       this.cellLocation,
       this.scene.map,
-      this.frameOffsets
+      this.asset.frameOffsets
     );
     this.cellPath = [];
     this.brain = brain;
@@ -26,7 +27,7 @@ export default class Entity extends AssetOwner {
   }
 
   get image() {
-    return Assets.get(this.assetPaths[0]);
+    return this.asset.image;
   }
 
   get location() {
@@ -66,7 +67,7 @@ export default class Entity extends AssetOwner {
 
   get frameXOrigin() {
     if (this.facing != undefined) {
-      return this.facing * this.frameSize.width;
+      return this.facing * this.asset.frameSize.width;
     }
     return 0;
   }
@@ -120,6 +121,20 @@ export default class Entity extends AssetOwner {
         this.activity();
       }
     } while (i++ < tickCount);
+  }
+
+  drawOnto(target, offsets) {
+    target.drawImage(
+      this.asset.image,
+      this.frameXOrigin,
+      this.frameYOrigin,
+      this.asset.frameSize.width,
+      this.asset.frameSize.height,
+      this.location.x - offsets.x,
+      this.location.y - offsets.y,
+      this.asset.frameSize.width,
+      this.asset.frameSize.height
+    );
   }
 
   isSelectedMobile() {

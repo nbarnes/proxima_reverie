@@ -1,6 +1,6 @@
 "use strict";
 
-import { Assets } from "./asset_manager";
+import { ImageManager } from "./assets";
 import { PubSub } from "./pub_sub";
 import { mapCoordsForCell } from "./util";
 
@@ -57,18 +57,18 @@ export const TileHighlighter = (function() {
 })();
 
 export class TileHighlight {
-  constructor(highlightAssetPath, cellLocation) {
-    this.highlightAssetPath = highlightAssetPath;
+  constructor(imagePath, cellLocation) {
+    this.imagePath = imagePath;
     this.cellLocation = cellLocation;
   }
   draw(context, viewportOffsets, tileSize) {
-    let asset = Assets.get(this.highlightAssetPath);
+    let image = ImageManager.get(this.imagePath);
     context.drawImage(
-      asset,
+      image,
       0,
       0,
-      asset.width,
-      asset.height,
+      image.width,
+      image.height,
       this.cellLocation.x - viewportOffsets.x,
       this.cellLocation.y - viewportOffsets.y,
       tileSize.x,

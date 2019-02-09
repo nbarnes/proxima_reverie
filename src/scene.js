@@ -3,7 +3,7 @@
 import Tile from "./tile";
 import Map from "./map";
 import Entity from "./entity";
-import { Assets } from "./asset_manager";
+import { ImageManager } from "./assets";
 import { MobileBrain } from "./brain";
 import { TileHighlighter } from "./tile_highlighter";
 import { PubSub } from "./pub_sub";
@@ -18,8 +18,8 @@ const BinarySearchTree = require("binary-search-tree").BinarySearchTree;
 
 export default class Scene {
   constructor(sceneDef, viewport, loadCompleteCallback) {
-    let tiles = sceneDef.mapDef.tileImagePaths.map(tileImagePath => {
-      return new Tile([tileImagePath]);
+    let tiles = sceneDef.mapDef.tileDefs.map(tileDef => {
+      return new Tile(tileDef.imagePath, tileDef.frameSize);
     });
 
     // @ts-ignore
@@ -37,23 +37,20 @@ export default class Scene {
 
     this.inputDisabled = false;
 
-    Assets.loadAssets(
-      [...tiles, ...this.mobiles, ...this.props, TileHighlighter],
-      () => {
-        // the viewport offsets are set in the loading callback because the
-        // tile image assets need to be fully loaded before the map can be drawn
-        if (this.mobiles.length > 0) {
-          this.activateNextMobile();
-        } else {
-          this.viewportOffsets = {
-            x: this.map.mapCanvas.width / 2 - viewport.width / 2,
-            y: this.map.mapCanvas.height / 2 - viewport.height / 2
-          };
-        }
-        this.assetsLoaded = true;
-        loadCompleteCallback();
+    ImageManager.loadImages([...tiles, ...this.mobiles, ...this.props], () => {
+      // the viewport offsets are set in the loading callback because the
+      // tile image assets need to be fully loaded before the map can be drawn
+      if (this.mobiles.length > 0) {
+        this.activateNextMobile();
+      } else {
+        this.viewportOffsets = {
+          x: this.map.mapCanvas.width / 2 - viewport.width / 2,
+          y: this.map.mapCanvas.height / 2 - viewport.height / 2
+        };
       }
-    );
+      this.assetsLoaded = true;
+      loadCompleteCallback();
+    });
 
     PubSub.subscribe("inputBlockingActivityStarted", () => {
       this.inputDisabled = true;
@@ -194,24 +191,14 @@ export default class Scene {
       this.viewport.height
     );
 
-    TileHighlighter.draw(context, this.viewportOffsets, {
-      x: this.map.tileWidth,
-      y: this.map.tileHeight
-    });
+    // TileHighlighter.draw(context, this.viewportOffsets, {
+    //   x: this.map.tileWidth,
+    //   y: this.map.tileHeight
+    // });
 
     this.drawOrderSortedEntities.executeOnEveryNode(node => {
       for (let entity of node.data) {
-        context.drawImage(
-          entity.image,
-          entity.frameXOrigin,
-          entity.frameYOrigin,
-          entity.frameSize.width,
-          entity.frameSize.height,
-          entity.location.x - this.viewportOffsets.x,
-          entity.location.y - this.viewportOffsets.y,
-          entity.frameSize.width,
-          entity.frameSize.height
-        );
+        entity.drawOnto(context, this.viewportOffsets);
       }
     });
   }
