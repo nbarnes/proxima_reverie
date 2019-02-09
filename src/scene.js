@@ -3,7 +3,7 @@
 import Tile from "./tile";
 import Map from "./map";
 import Entity from "./entity";
-import { AssetManager } from "./asset_manager";
+import { ImageManager } from "./assets";
 import { MobileBrain } from "./brain";
 import {
   mapCoordsForCell,
@@ -16,8 +16,8 @@ const BinarySearchTree = require("binary-search-tree").BinarySearchTree;
 
 export default class Scene {
   constructor(sceneDef, viewport, loadCompleteCallback) {
-    let tiles = sceneDef.mapDef.tileImagePaths.map(tileImagePath => {
-      return new Tile([tileImagePath]);
+    let tiles = sceneDef.mapDef.tileDefs.map(tileDef => {
+      return new Tile(tileDef.imagePath, tileDef.frameSize);
     });
 
     // @ts-ignore
@@ -33,7 +33,9 @@ export default class Scene {
 
     this.viewport = viewport;
 
-    AssetManager.loadAssets([...tiles, ...this.mobiles, ...this.props], () => {
+    this.inputDisabled = false;
+
+    ImageManager.loadImages([...tiles, ...this.mobiles, ...this.props], () => {
       // the viewport offsets are set in the loading callback because the
       // tile image assets need to be fully loaded before the map can be drawn
       if (this.mobiles.length > 0) {
@@ -187,33 +189,14 @@ export default class Scene {
       this.viewport.height
     );
 
-    for (const highlight of this.tileHighlights) {
-      context.drawImage(
-        highlight.image,
-        highlight.frameXOrigin,
-        highlight.frameYOrigin,
-        highlight.frameSize.width,
-        highlight.frameSize.height,
-        highlight.location.x - this.viewportOffsets.x,
-        highlight.location.y - this.viewportOffsets.y,
-        this.map.tileWidth,
-        this.map.tileHeight
-      );
-    }
+    // TileHighlighter.draw(context, this.viewportOffsets, {
+    //   x: this.map.tileWidth,
+    //   y: this.map.tileHeight
+    // });
 
     this.drawOrderSortedEntities.executeOnEveryNode(node => {
       for (let entity of node.data) {
-        context.drawImage(
-          entity.image,
-          entity.frameXOrigin,
-          entity.frameYOrigin,
-          entity.frameSize.width,
-          entity.frameSize.height,
-          entity.location.x - this.viewportOffsets.x,
-          entity.location.y - this.viewportOffsets.y,
-          entity.frameSize.width,
-          entity.frameSize.height
-        );
+        entity.drawOnto(context, this.viewportOffsets);
       }
     });
   }

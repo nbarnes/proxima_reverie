@@ -1,16 +1,13 @@
 "use strict";
 
-import { AssetManager } from "./asset_manager";
+import { Asset } from "./assets.js";
 
 export default class Tile {
-  constructor(assetPaths) {
-    this.assetPaths = assetPaths;
-    this.tileWidth = 128;
-    this.tileHeight = 64;
-    this.imageFrameIndex = 0;
+  constructor(imagePath, frameSize) {
+    this.asset = new Asset(imagePath, frameSize);
   }
 
-  get img() {
-    return AssetManager.get(this.assetPaths[this.imageFrameIndex]);
+  get image() {
+    return this.asset.image;
   }
 }

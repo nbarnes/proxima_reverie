@@ -7,8 +7,8 @@ export default class Map {
   constructor(tiles, mapSize) {
     this.tiles = tiles;
     this.mapSize = mapSize;
-    this.tileWidth = tiles[0].tileWidth;
-    this.tileHeight = tiles[0].tileHeight;
+    this.tileWidth = 128;
+    this.tileHeight = 64;
     this.cells = buildCells(this);
   }
 
@@ -83,7 +83,7 @@ function drawMapCanvas(map) {
 function drawTile(map, context, tile, mapX, mapY) {
   let contextCoords = mapCoordsForCell({ x: mapX, y: mapY }, map);
   context.drawImage(
-    tile.img,
+    tile.image,
     contextCoords.x,
     contextCoords.y,
     map.tileWidth,
