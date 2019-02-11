@@ -30,10 +30,12 @@ export const Input = (function() {
   }
 
   function mouseMove(event) {
+    console.log(event);
     this.mouseMovedTo = event;
   }
 
   function mouseUp(event) {
+    console.log(event);
     this.mouseUpAt = event;
   }
 
@@ -43,6 +45,8 @@ export const Input = (function() {
 
   function resetInputs() {
     keysPressed = [];
+    this.mouseMovedTo = undefined;
+    this.mouseUpAt = undefined;
   }
 
   return {
