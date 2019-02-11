@@ -15,12 +15,6 @@ export const ImageManager = (function() {
       image.onload = function() {
         imagesRemaining--;
         if (imagesRemaining <= 0) {
-          document
-            .getElementById("loading-images-message")
-            .classList.add("hide");
-          document
-            .getElementById("images-loaded-message")
-            .classList.remove("hide");
           callback();
         }
       };

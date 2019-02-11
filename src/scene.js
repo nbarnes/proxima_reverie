@@ -3,19 +3,16 @@
 import Tile from "./tile";
 import Map from "./map";
 import Entity from "./entity";
+import { AutoscrollingGameState } from "./game";
 import { ImageManager } from "./assets";
 import { MobileBrain } from "./brain";
-import {
-  mapCoordsForCell,
-  buildPathBrensenham,
-  coordsInBounds,
-  lesserOf
-} from "./util";
+import { mapCoordsForCell, buildPathBrensenham, coordsInBounds } from "./util";
 
 const BinarySearchTree = require("binary-search-tree").BinarySearchTree;
 
 export default class Scene {
-  constructor(sceneDef, viewport, loadCompleteCallback) {
+  constructor(game, sceneDef, viewport, loadCompleteCallback) {
+    this.game = game;
     let tiles = sceneDef.mapDef.tileDefs.map(tileDef => {
       return new Tile(tileDef.imagePath, tileDef.frameSize);
     });
@@ -32,21 +29,11 @@ export default class Scene {
     this.tileHighlights = [];
 
     this.viewport = viewport;
+    this.cameraOffsets = { x: 0, y: 0 };
 
     this.inputDisabled = false;
 
     ImageManager.loadImages([...tiles, ...this.mobiles, ...this.props], () => {
-      // the viewport offsets are set in the loading callback because the
-      // tile image assets need to be fully loaded before the map can be drawn
-      if (this.mobiles.length > 0) {
-        this.activateNextMobile();
-      } else {
-        this.viewportOffsets = {
-          x: this.map.mapCanvas.width / 2 - viewport.width / 2,
-          y: this.map.mapCanvas.height / 2 - viewport.height / 2
-        };
-      }
-      this.assetsLoaded = true;
       loadCompleteCallback();
     });
 
@@ -63,7 +50,7 @@ export default class Scene {
     //     let cellLocation = getMouseEventCellPosition(
     //       event,
     //       this.viewport,
-    //       this.viewportOffsets,
+    //       this.cameraOffsets,
     //       this.map
     //     );
     //     if (cellLocation) {
@@ -79,7 +66,7 @@ export default class Scene {
     //   let cellPosition = getMouseEventCellPosition(
     //     event,
     //     this.viewport,
-    //     this.viewportOffsets,
+    //     this.cameraOffsets,
     //     this.map
     //   );
 
@@ -104,65 +91,10 @@ export default class Scene {
     //     }
     //   }
     // });
-
-    // PubSub.subscribe("ArrowUp", event => {
-    //   this.cameraScroll = {
-    //     advance: ticksElapsed => {
-    //       this.viewportOffsets = {
-    //         x: this.viewportOffsets.x,
-    //         y: this.viewportOffsets.y - ticksElapsed * 10
-    //       };
-    //       this.cameraScroll = undefined;
-    //     }
-    //   };
-    //   PubSub.publish("inputBlockingActivityFinished");
-    // });
-
-    // PubSub.subscribe("ArrowRight", event => {
-    //   this.cameraScroll = {
-    //     advance: ticksElapsed => {
-    //       this.viewportOffsets = {
-    //         x: this.viewportOffsets.x + ticksElapsed * 10,
-    //         y: this.viewportOffsets.y
-    //       };
-    //       this.cameraScroll = undefined;
-    //     }
-    //   };
-    //   PubSub.publish("inputBlockingActivityFinished");
-    // });
-
-    // PubSub.subscribe("ArrowDown", event => {
-    //   this.cameraScroll = {
-    //     advance: ticksElapsed => {
-    //       this.viewportOffsets = {
-    //         x: this.viewportOffsets.x,
-    //         y: this.viewportOffsets.y + ticksElapsed * 10
-    //       };
-    //       this.cameraScroll = undefined;
-    //     }
-    //   };
-    //   PubSub.publish("inputBlockingActivityFinished");
-    // });
-
-    // PubSub.subscribe("ArrowLeft", event => {
-    //   this.cameraScroll = {
-    //     advance: ticksElapsed => {
-    //       this.viewportOffsets = {
-    //         x: this.viewportOffsets.x - ticksElapsed * 10,
-    //         y: this.viewportOffsets.y
-    //       };
-    //       this.cameraScroll = undefined;
-    //     }
-    //   };
-    //   PubSub.publish("inputBlockingActivityFinished");
-    // });
   }
 
   tick(ticksElapsed) {
     if (ticksElapsed > 0) {
-      if (this.cameraScroll != undefined) {
-        this.cameraScroll.advance(ticksElapsed);
-      }
       for (let mobile of this.mobiles) {
         mobile.tick(ticksElapsed);
       }
@@ -179,8 +111,8 @@ export default class Scene {
     context.fill();
     context.drawImage(
       this.map.mapCanvas,
-      this.viewportOffsets.x,
-      this.viewportOffsets.y,
+      this.cameraOffsets.x,
+      this.cameraOffsets.y,
       this.viewport.width,
       this.viewport.height,
       0,
@@ -189,14 +121,14 @@ export default class Scene {
       this.viewport.height
     );
 
-    // TileHighlighter.draw(context, this.viewportOffsets, {
+    // TileHighlighter.draw(context, this.cameraOffsets, {
     //   x: this.map.tileWidth,
     //   y: this.map.tileHeight
     // });
 
     this.drawOrderSortedEntities.executeOnEveryNode(node => {
       for (let entity of node.data) {
-        entity.drawOnto(context, this.viewportOffsets);
+        entity.drawOnto(context, this.cameraOffsets);
       }
     });
   }
@@ -236,10 +168,6 @@ export default class Scene {
       newOffsets.y -= this.viewport.height / 2;
       this.scrollToLocation(newOffsets);
     }
-    // PubSub.publish("activeMobileChanged", {
-    //   map: this.map,
-    //   mobile: this.activeMobile
-    // });
   }
 
   get activeMobile() {
@@ -247,36 +175,22 @@ export default class Scene {
   }
 
   scrollToLocation(location) {
-    if (this.viewportOffsets != undefined) {
-      // PubSub.publish("inputBlockingActivityStarted");
-      let scrollTrack = buildPathBrensenham(this.viewportOffsets, location);
-      this.cameraScroll = {
-        advance: ticksElapsed => {
-          let scrollDistance = lesserOf(ticksElapsed * 10, scrollTrack.length);
-          scrollTrack = scrollTrack.slice(scrollDistance - 1);
-          let newLoc = scrollTrack.shift();
-          this.viewportOffsets = newLoc;
-          if (scrollTrack.length == 0) {
-            // PubSub.publish("inputBlockingActivityFinished");
-            this.cameraScroll = undefined;
-          }
-        }
-      };
-    } else {
-      this.viewportOffsets = location;
-    }
+    let scrollTrack = buildPathBrensenham(this.cameraOffsets, location);
+    this.game.changeState(
+      new AutoscrollingGameState(this.game, this, scrollTrack)
+    );
   }
 }
 
-function getMouseEventCellPosition(event, viewport, viewportOffsets, map) {
+function getMouseEventCellPosition(event, viewport, cameraOffsets, map) {
   let rect = viewport.getBoundingClientRect();
   let viewportPosition = {
     x: event.clientX - rect.left,
     y: event.clientY - rect.top
   };
   let mapPosition = {
-    x: viewportOffsets.x + viewportPosition.x,
-    y: viewportOffsets.y + viewportPosition.y
+    x: cameraOffsets.x + viewportPosition.x,
+    y: cameraOffsets.y + viewportPosition.y
   };
   let halfTileWidth = map.tileWidth / 2;
   let halfTileHeight = map.tileHeight / 2;
