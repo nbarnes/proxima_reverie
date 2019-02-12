@@ -1,5 +1,7 @@
 "use strict";
 
+import { TileHighlightDefs } from "./tile_highlight";
+
 export const ImageManager = (function() {
   let images = {};
 
@@ -7,7 +9,11 @@ export const ImageManager = (function() {
     let imagePaths = assetOwners.map(assetOwner => {
       return assetOwner.asset.imagePath;
     });
+    let tileHighlightAssetPaths = TileHighlightDefs.map(def => {
+      return def.imagePath;
+    });
     imagePaths = [...new Set(imagePaths)];
+    imagePaths = imagePaths.concat(tileHighlightAssetPaths);
     let imagesRemaining = imagePaths.length;
     for (let imagePath of imagePaths) {
       let image = new Image();

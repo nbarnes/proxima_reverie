@@ -86,8 +86,7 @@ export class AwaitingInputGamestate {
     let keys = Input.getKeysPressed();
     this.handleArrowScroll(keys);
     let mouseActions = Input.getMouseActions();
-    // handle arrow push -> manual scroll (within state or create ManualScrolling state?)
-    // handle mouse movement -> tile highlight
+    this.placeCursorTileHighlight(mouseActions.mouseMove);
 
     // handle mouse click -> initiate mobile movement
     //                       change selected mobile
@@ -97,7 +96,6 @@ export class AwaitingInputGamestate {
     this.scene.draw();
   }
   enter() {
-    // select a mobile?
     // place selected mobile highlight
     // place cursor tile highlight
   }
@@ -117,6 +115,11 @@ export class AwaitingInputGamestate {
     }
     if (keys.includes("ArrowRight")) {
       this.scene.cameraOffsets.x += cameraScrollSpeed;
+    }
+  }
+  placeCursorTileHighlight(event) {
+    if (event) {
+      this.scene.placeCursorTileHighlight(event);
     }
   }
 }

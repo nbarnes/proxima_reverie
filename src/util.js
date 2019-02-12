@@ -55,9 +55,9 @@ export const entityMapLocationFromCell = (cell, map, frameOffsets) => {
 };
 
 export const mapCoordsForCell = (cellCoords, map) => {
-  let xOffset = (map.mapSize * map.tileWidth) / 2 - map.tileWidth / 2;
-  let mapX = (cellCoords.x - cellCoords.y) * (map.tileWidth / 2) + xOffset;
-  let mapY = (cellCoords.x + cellCoords.y) * (map.tileHeight / 2);
+  let xOffset = (map.mapSize * map.tileSize.width) / 2 - map.tileSize.width / 2;
+  let mapX = (cellCoords.x - cellCoords.y) * (map.tileSize.width / 2) + xOffset;
+  let mapY = (cellCoords.x + cellCoords.y) * (map.tileSize.height / 2);
   return { x: mapX, y: mapY };
 };
 

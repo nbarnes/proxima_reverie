@@ -7,8 +7,7 @@ export default class Map {
   constructor(tiles, mapSize) {
     this.tiles = tiles;
     this.mapSize = mapSize;
-    this.tileWidth = 128;
-    this.tileHeight = 64;
+    this.tileSize = { width: 128, height: 64 };
     this.cells = buildCells(this);
   }
 
@@ -20,7 +19,7 @@ export default class Map {
   }
 
   get tileOffsets() {
-    return { x: this.tileWidth / 2, y: this.tileHeight / 2 };
+    return { x: this.tileSize.width / 2, y: this.tileSize.height / 2 };
   }
 
   cellAt(coords) {
@@ -66,8 +65,8 @@ function buildCells(map) {
 
 function drawMapCanvas(map) {
   let mapCanvas = document.createElement("canvas");
-  mapCanvas.width = map.mapSize * map.tileWidth;
-  mapCanvas.height = map.mapSize * map.tileHeight;
+  mapCanvas.width = map.mapSize * map.tileSize.width;
+  mapCanvas.height = map.mapSize * map.tileSize.height;
   let context = mapCanvas.getContext("2d");
   context.rect(0, 0, mapCanvas.width, mapCanvas.height);
   context.fillStyle = "lightgrey";
@@ -86,7 +85,7 @@ function drawTile(map, context, tile, mapX, mapY) {
     tile.image,
     contextCoords.x,
     contextCoords.y,
-    map.tileWidth,
-    map.tileHeight
+    map.tileSize.width,
+    map.tileSize.height
   );
 }

@@ -3,8 +3,8 @@
 export const Input = (function() {
   let keysDown = [];
   let keysPressed = [];
-  let mouseMovedTo = undefined;
-  let mouseUpAt = undefined;
+  let mouseMoved = undefined;
+  let mouseUped = undefined;
 
   function keyDown(keyCode) {
     if (keysPressed.indexOf(keyCode) < 0) {
@@ -30,21 +30,21 @@ export const Input = (function() {
   }
 
   function mouseMove(event) {
-    this.mouseMovedTo = event;
+    mouseMoved = event;
   }
 
   function mouseUp(event) {
-    this.mouseUpAt = event;
+    mouseUped = event;
   }
 
   function getMouseActions() {
-    return { mouseMovedTo: this.mouseMovedTo, mouseUpAt: this.mouseUpAt };
+    return { mouseMove: mouseMoved, mouseUp: mouseUped };
   }
 
   function resetInputs() {
     keysPressed = [];
-    this.mouseMovedTo = undefined;
-    this.mouseUpAt = undefined;
+    mouseMoved = undefined;
+    mouseUped = undefined;
   }
 
   return {

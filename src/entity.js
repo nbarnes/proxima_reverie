@@ -30,10 +30,6 @@ export default class Entity {
     this.facing = entityDef.facing;
   }
 
-  get image() {
-    return this.asset.image;
-  }
-
   get location() {
     return this.myLocation;
   }

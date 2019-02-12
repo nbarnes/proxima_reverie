@@ -6,6 +6,7 @@ import Entity from "./entity";
 import { AutoscrollingGameState } from "./game";
 import { ImageManager } from "./assets";
 import { MobileBrain } from "./brain";
+import { CursorHighlight } from "./tile_highlight";
 import { mapCoordsForCell, buildPathBrensenham, coordsInBounds } from "./util";
 
 const BinarySearchTree = require("binary-search-tree").BinarySearchTree;
@@ -17,6 +18,7 @@ export default class Scene {
       return new Tile(tileDef.imagePath, tileDef.frameSize);
     });
 
+    this.cursorTileHighlight = undefined;
     // @ts-ignore
     this.drawOrderSortedEntities = new BinarySearchTree();
     this.map = new Map(tiles, sceneDef.mapDef.mapSize);
@@ -36,14 +38,6 @@ export default class Scene {
     ImageManager.loadImages([...tiles, ...this.mobiles, ...this.props], () => {
       loadCompleteCallback();
     });
-
-    // PubSub.subscribe("inputBlockingActivityStarted", () => {
-    //   this.inputDisabled = true;
-    // });
-
-    // PubSub.subscribe("inputBlockingActivityFinished", () => {
-    //   this.inputDisabled = false;
-    // });
 
     // PubSub.subscribe("mousemove", event => {
     //   if (this.assetsLoaded) {
@@ -121,10 +115,9 @@ export default class Scene {
       this.viewport.height
     );
 
-    // TileHighlighter.draw(context, this.cameraOffsets, {
-    //   x: this.map.tileWidth,
-    //   y: this.map.tileHeight
-    // });
+    if (this.cursorTileHighlight) {
+      this.cursorTileHighlight.drawOnto(context, this.cameraOffsets);
+    }
 
     this.drawOrderSortedEntities.executeOnEveryNode(node => {
       for (let entity of node.data) {
@@ -164,7 +157,7 @@ export default class Scene {
     this.myActiveMobile = newActiveMobile;
     if (newActiveMobile != undefined) {
       let newOffsets = mapCoordsForCell(newActiveMobile.cellLocation, this.map);
-      newOffsets.x -= this.viewport.width / 2 - this.map.tileWidth / 2;
+      newOffsets.x -= this.viewport.width / 2 - this.map.tileSize.width / 2;
       newOffsets.y -= this.viewport.height / 2;
       this.scrollToLocation(newOffsets);
     }
@@ -180,35 +173,47 @@ export default class Scene {
       new AutoscrollingGameState(this.game, this, scrollTrack)
     );
   }
+
+  placeCursorTileHighlight(mouseMovementEvent) {
+    this.cursorTileHighlight = undefined;
+    let rect = this.viewport.getBoundingClientRect();
+    let cursorViewportLocation = {
+      x: mouseMovementEvent.clientX - rect.left,
+      y: mouseMovementEvent.clientY - rect.top
+    };
+    let cursorMapLocation = {
+      x: this.cameraOffsets.x + cursorViewportLocation.x,
+      y: this.cameraOffsets.y + cursorViewportLocation.y
+    };
+    let cellLocation = getMouseEventCellPosition(cursorMapLocation, this.map);
+    if (cellLocation) {
+      this.cursorTileHighlight = new CursorHighlight(
+        mapCoordsForCell(cellLocation, this.map)
+      );
+    }
+  }
 }
 
-function getMouseEventCellPosition(event, viewport, cameraOffsets, map) {
-  let rect = viewport.getBoundingClientRect();
-  let viewportPosition = {
-    x: event.clientX - rect.left,
-    y: event.clientY - rect.top
-  };
-  let mapPosition = {
-    x: cameraOffsets.x + viewportPosition.x,
-    y: cameraOffsets.y + viewportPosition.y
-  };
-  let halfTileWidth = map.tileWidth / 2;
-  let halfTileHeight = map.tileHeight / 2;
+function getMouseEventCellPosition(cursorLocation, map) {
+  let halfTileWidth = map.tileSize.width / 2;
+  let halfTileHeight = map.tileSize.height / 2;
   let halfMapSize = map.mapSize / 2;
-  let fractionalCellPosition = {
+  let fractionalCellLocation = {
     x:
-      (mapPosition.x / halfTileWidth + mapPosition.y / halfTileHeight) / 2 -
+      (cursorLocation.x / halfTileWidth + cursorLocation.y / halfTileHeight) /
+        2 -
       halfMapSize,
     y:
-      (mapPosition.y / halfTileHeight - mapPosition.x / halfTileWidth) / 2 +
+      (cursorLocation.y / halfTileHeight - cursorLocation.x / halfTileWidth) /
+        2 +
       halfMapSize
   };
-  let cellPosition = {
-    x: Math.floor(fractionalCellPosition.x),
-    y: Math.floor(fractionalCellPosition.y)
+  let cellLocation = {
+    x: Math.floor(fractionalCellLocation.x),
+    y: Math.floor(fractionalCellLocation.y)
   };
-  if (coordsInBounds(cellPosition, map.mapSize)) {
-    return cellPosition;
+  if (coordsInBounds(cellLocation, map.mapSize)) {
+    return cellLocation;
   } else {
     return undefined;
   }
