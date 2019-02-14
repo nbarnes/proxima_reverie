@@ -76,7 +76,7 @@ export default class Entity {
     return 0;
   }
 
-  respondToMouse(eventCell, startCallback, endCallback) {
+  respondToMoveCommand(eventCell, startCallback, endCallback) {
     if (
       this.activity == undefined &&
       this.brain != undefined &&

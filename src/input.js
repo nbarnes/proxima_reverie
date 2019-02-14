@@ -3,6 +3,7 @@
 export const Input = (function() {
   let keysDown = [];
   let keysPressed = [];
+  let mouseAt = undefined;
   let mouseMoved = undefined;
   let mouseUped = undefined;
 
@@ -21,7 +22,7 @@ export const Input = (function() {
     });
   }
 
-  function getKeysPressed() {
+  function getKeys() {
     return keysDown.concat(
       keysPressed.filter(key => {
         return keysDown.indexOf(key) < 0;
@@ -30,6 +31,7 @@ export const Input = (function() {
   }
 
   function mouseMove(event) {
+    mouseAt = event;
     mouseMoved = event;
   }
 
@@ -37,10 +39,11 @@ export const Input = (function() {
     mouseUped = event;
   }
 
-  function getMouseActions() {
-    return { mouseMove: mouseMoved, mouseUp: mouseUped };
+  function getMouse() {
+    return { mouseAt: mouseAt, mouseMove: mouseMoved, mouseUp: mouseUped };
   }
 
+  // Usually called after the inputs are polled; does not reset mouseAt
   function resetInputs() {
     keysPressed = [];
     mouseMoved = undefined;
@@ -50,10 +53,10 @@ export const Input = (function() {
   return {
     keyDown: keyDown,
     keyUp: keyUp,
-    getKeysPressed: getKeysPressed,
+    getKeys: getKeys,
     mouseMove: mouseMove,
     mouseUp: mouseUp,
-    getMouseActions: getMouseActions,
+    getMouse: getMouse,
     resetInputs: resetInputs
   };
 })();

@@ -60,3 +60,9 @@ export class CursorHighlight extends TileHighlight {
     super(TileHighlightDefs[4], location);
   }
 }
+
+export class SelectedMobileTileHighlight extends TileHighlight {
+  constructor(location) {
+    super(TileHighlightDefs[3], location);
+  }
+}

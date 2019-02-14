@@ -6,7 +6,7 @@ import Entity from "./entity";
 import { AutoscrollingGameState } from "./game";
 import { ImageManager } from "./assets";
 import { MobileBrain } from "./brain";
-import { CursorHighlight } from "./tile_highlight";
+import { CursorHighlight, SelectedMobileTileHighlight } from "./tile_highlight";
 import { mapCoordsForCell, buildPathBrensenham, coordsInBounds } from "./util";
 
 const BinarySearchTree = require("binary-search-tree").BinarySearchTree;
@@ -33,58 +33,9 @@ export default class Scene {
     this.viewport = viewport;
     this.cameraOffsets = { x: 0, y: 0 };
 
-    this.inputDisabled = false;
-
     ImageManager.loadImages([...tiles, ...this.mobiles, ...this.props], () => {
       loadCompleteCallback();
     });
-
-    // PubSub.subscribe("mousemove", event => {
-    //   if (this.assetsLoaded) {
-    //     let cellLocation = getMouseEventCellPosition(
-    //       event,
-    //       this.viewport,
-    //       this.cameraOffsets,
-    //       this.map
-    //     );
-    //     if (cellLocation) {
-    //       PubSub.publish("mouseOverCell", {
-    //         cellLocation: cellLocation,
-    //         map: this.map
-    //       });
-    //     }
-    //   }
-    // });
-
-    // PubSub.subscribe("mouseup", event => {
-    //   let cellPosition = getMouseEventCellPosition(
-    //     event,
-    //     this.viewport,
-    //     this.cameraOffsets,
-    //     this.map
-    //   );
-
-    //   if (cellPosition != undefined && !this.inputDisabled) {
-    //     let cellContents = this.map.cellAt(cellPosition).contents[0];
-    //     if (
-    //       this.mobiles.includes(cellContents) &&
-    //       cellContents != this.activeMobile
-    //     ) {
-    //       this.activeMobile = cellContents;
-    //     } else {
-    //       this.activeMobile.respondToMouse(
-    //         this.map.cellAt(cellPosition),
-    //         () => {
-    //           PubSub.publish("inputBlockingActivityStarted");
-    //         },
-    //         () => {
-    //           PubSub.publish("inputBlockingActivityFinished");
-    //           this.activateNextMobile();
-    //         }
-    //       );
-    //     }
-    //   }
-    // });
   }
 
   tick(ticksElapsed) {
@@ -119,11 +70,35 @@ export default class Scene {
       this.cursorTileHighlight.drawOnto(context, this.cameraOffsets);
     }
 
+    if (this.selectedMobileTileHighlight) {
+      this.selectedMobileTileHighlight.drawOnto(context, this.cameraOffsets);
+    }
+
     this.drawOrderSortedEntities.executeOnEveryNode(node => {
       for (let entity of node.data) {
         entity.drawOnto(context, this.cameraOffsets);
       }
     });
+  }
+
+  handleCellClick(cellTarget) {
+    if (cellTarget != undefined) {
+      let cellContents = this.map.cellAt(cellTarget).contents[0];
+      if (
+        this.mobiles.includes(cellContents) &&
+        cellContents != this.activeMobile
+      ) {
+        this.activeMobile = cellContents;
+      } else {
+        this.activeMobile.respondToMoveCommand(
+          this.map.cellAt(cellTarget),
+          () => {},
+          () => {
+            this.activateNextMobile();
+          }
+        );
+      }
+    }
   }
 
   addEntityToDraw(entity) {
@@ -156,6 +131,7 @@ export default class Scene {
   set activeMobile(newActiveMobile) {
     this.myActiveMobile = newActiveMobile;
     if (newActiveMobile != undefined) {
+      this.placeSelectedMobileTileHighlight(newActiveMobile.cellLocation);
       let newOffsets = mapCoordsForCell(newActiveMobile.cellLocation, this.map);
       newOffsets.x -= this.viewport.width / 2 - this.map.tileSize.width / 2;
       newOffsets.y -= this.viewport.height / 2;
@@ -174,47 +150,69 @@ export default class Scene {
     );
   }
 
-  placeCursorTileHighlight(mouseMovementEvent) {
+  placeCursorTileHighlight(cellTarget) {
     this.cursorTileHighlight = undefined;
-    let rect = this.viewport.getBoundingClientRect();
-    let cursorViewportLocation = {
-      x: mouseMovementEvent.clientX - rect.left,
-      y: mouseMovementEvent.clientY - rect.top
-    };
-    let cursorMapLocation = {
-      x: this.cameraOffsets.x + cursorViewportLocation.x,
-      y: this.cameraOffsets.y + cursorViewportLocation.y
-    };
-    let cellLocation = getMouseEventCellPosition(cursorMapLocation, this.map);
-    if (cellLocation) {
+    if (cellTarget) {
       this.cursorTileHighlight = new CursorHighlight(
-        mapCoordsForCell(cellLocation, this.map)
+        mapCoordsForCell(cellTarget, this.map)
       );
     }
   }
-}
 
-function getMouseEventCellPosition(cursorLocation, map) {
-  let halfTileWidth = map.tileSize.width / 2;
-  let halfTileHeight = map.tileSize.height / 2;
-  let halfMapSize = map.mapSize / 2;
-  let fractionalCellLocation = {
-    x:
-      (cursorLocation.x / halfTileWidth + cursorLocation.y / halfTileHeight) /
-        2 -
-      halfMapSize,
-    y:
-      (cursorLocation.y / halfTileHeight - cursorLocation.x / halfTileWidth) /
-        2 +
-      halfMapSize
-  };
-  let cellLocation = {
-    x: Math.floor(fractionalCellLocation.x),
-    y: Math.floor(fractionalCellLocation.y)
-  };
-  if (coordsInBounds(cellLocation, map.mapSize)) {
-    return cellLocation;
-  } else {
-    return undefined;
+  placeSelectedMobileTileHighlight(cellTarget) {
+    this.selectedMobileTileHighlight = undefined;
+    if (cellTarget) {
+      this.selectedMobileTileHighlight = new SelectedMobileTileHighlight(
+        mapCoordsForCell(cellTarget, this.map)
+      );
+    }
+  }
+
+  // Take the cursor location within the viewport and returns the location
+  // within the larger scene map.  See also getMouseEventCellLocation().
+  getMouseEventMapLocation(cursorLocation) {
+    if (cursorLocation) {
+      let rect = this.viewport.getBoundingClientRect();
+      let cursorViewportLocation = {
+        x: cursorLocation.clientX - rect.left,
+        y: cursorLocation.clientY - rect.top
+      };
+      return {
+        x: this.cameraOffsets.x + cursorViewportLocation.x,
+        y: this.cameraOffsets.y + cursorViewportLocation.y
+      };
+    }
+  }
+
+  // Requires a cursor location defined in terms of the entire map, NOT in terms
+  // of the viewport.  Use getMouseEventMapLocation() to translate from viewport
+  // location to map location.
+  getMouseEventCellLocation(cursorLocation) {
+    if (cursorLocation) {
+      let halfTileWidth = this.map.tileSize.width / 2;
+      let halfTileHeight = this.map.tileSize.height / 2;
+      let halfMapSize = this.map.mapSize / 2;
+      let fractionalCellLocation = {
+        x:
+          (cursorLocation.x / halfTileWidth +
+            cursorLocation.y / halfTileHeight) /
+            2 -
+          halfMapSize,
+        y:
+          (cursorLocation.y / halfTileHeight -
+            cursorLocation.x / halfTileWidth) /
+            2 +
+          halfMapSize
+      };
+      let cellLocation = {
+        x: Math.floor(fractionalCellLocation.x),
+        y: Math.floor(fractionalCellLocation.y)
+      };
+      if (coordsInBounds(cellLocation, this.map.mapSize)) {
+        return cellLocation;
+      } else {
+        return undefined;
+      }
+    }
   }
 }

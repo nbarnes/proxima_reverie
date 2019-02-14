@@ -83,25 +83,41 @@ export class AwaitingInputGamestate {
     this.scene = scene;
   }
   handle(ticksElapsed) {
-    let keys = Input.getKeysPressed();
+    let keys = Input.getKeys();
     this.handleArrowScroll(keys);
-    let mouseActions = Input.getMouseActions();
-    this.placeCursorTileHighlight(mouseActions.mouseMove);
 
-    // handle mouse click -> initiate mobile movement
-    //                       change selected mobile
+    let mouseActions = Input.getMouse();
+
+    if (mouseActions.mouseMove) {
+      let mouseCellLocation = this.scene.getMouseEventCellLocation(
+        this.scene.getMouseEventMapLocation(mouseActions.mouseMove)
+      );
+      this.scene.placeCursorTileHighlight(mouseCellLocation);
+    }
+
+    if (mouseActions.mouseUp) {
+      let mouseCellLocation = this.scene.getMouseEventCellLocation(
+        this.scene.getMouseEventMapLocation(mouseActions.mouseUp)
+      );
+      this.scene.handleCellClick(mouseCellLocation);
+    }
+
+    // change selected mobile on click
 
     Input.resetInputs();
     this.scene.tick(ticksElapsed);
     this.scene.draw();
   }
   enter() {
-    // place selected mobile highlight
+    if (this.scene.activeMobile) {
+      let targetCell = this.scene.activeMobile.cellLocation;
+      this.scene.placeSelectedMobileTileHighlight(targetCell);
+    }
     // place cursor tile highlight
   }
   leave() {
     // remove selected mobile highlight
-    // remove cursor tile highlight
+    this.scene.placeCursorTileHighlight({ x: undefined, y: undefined });
   }
   handleArrowScroll(keys) {
     if (keys.includes("ArrowUp")) {
@@ -117,11 +133,6 @@ export class AwaitingInputGamestate {
       this.scene.cameraOffsets.x += cameraScrollSpeed;
     }
   }
-  placeCursorTileHighlight(event) {
-    if (event) {
-      this.scene.placeCursorTileHighlight(event);
-    }
-  }
 }
 
 export class AutoscrollingGameState {
@@ -132,7 +143,7 @@ export class AutoscrollingGameState {
   }
 
   handle(ticksElapsed) {
-    if (Input.getKeysPressed().length > 0 || this.scrollTrack.length == 0) {
+    if (Input.getKeys().length > 0 || this.scrollTrack.length == 0) {
       this.game.changeState(new AwaitingInputGamestate(this.game, this.scene));
       Input.resetInputs();
     } else {
@@ -152,16 +163,21 @@ export class AutoscrollingGameState {
   enter() {}
   leave() {}
 }
-export class AnimatingMobileMovement_UIState {
-  constructor() {}
+export class AnimatingMobileGameState {
+  constructor(game, scene) {
+    this.game = game;
+    this.scene = scene;
+  }
+
   tick(ticksElapsed) {
-    this.handleInputs();
+    this.scene.tick(ticksElapsed);
+    this.scene.draw();
     // change camera offsets for manual scroll(?)
     // mobile move completed?
   }
   handleInputs() {
-    let keyInputs = Input.getKeysPressed();
-    let mouseInputs = Input.getMouseActions();
+    let keyInputs = Input.getKeys();
+    let mouseInputs = Input.getMouse();
     // handle arrow push -> manual scroll (within state or create ManualScrolling state?)
     // handle mouse movement -> no op
     // handle mouse click -> no op
