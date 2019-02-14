@@ -3,7 +3,11 @@
 import Tile from "./tile";
 import Map from "./map";
 import Entity from "./entity";
-import { AutoscrollingGameState } from "./game";
+import {
+  AwaitingInputGamestate,
+  AutoscrollingGameState,
+  AnimatingMobileGameState
+} from "./game";
 import { ImageManager } from "./assets";
 import { MobileBrain } from "./brain";
 import { CursorHighlight, SelectedMobileTileHighlight } from "./tile_highlight";
@@ -92,8 +96,13 @@ export default class Scene {
       } else {
         this.activeMobile.respondToMoveCommand(
           this.map.cellAt(cellTarget),
-          () => {},
           () => {
+            this.game.changeState(
+              new AnimatingMobileGameState(this.game, this)
+            );
+          },
+          () => {
+            this.game.changeState(new AwaitingInputGamestate(this.game, this));
             this.activateNextMobile();
           }
         );
