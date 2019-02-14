@@ -102,13 +102,19 @@ export class AwaitingInputGamestate {
       this.scene.handleCellClick(mouseCellLocation);
     }
 
-    // change selected mobile on click
-
     Input.resetInputs();
     this.scene.tick(ticksElapsed);
     this.scene.draw();
   }
   enter() {
+    console.log(Input.getMouse().mouseAt);
+    if (Input.getMouse().mouseAt) {
+      let mouseCellLocation = this.scene.getMouseEventCellLocation(
+        this.scene.getMouseEventMapLocation(Input.getMouse().mouseAt)
+      );
+      this.scene.placeCursorTileHighlight(mouseCellLocation);
+    }
+
     if (this.scene.activeMobile) {
       let targetCell = this.scene.activeMobile.cellLocation;
       this.scene.placeSelectedMobileTileHighlight(targetCell);
@@ -116,7 +122,6 @@ export class AwaitingInputGamestate {
     // place cursor tile highlight
   }
   leave() {
-    // remove selected mobile highlight
     this.scene.placeCursorTileHighlight({ x: undefined, y: undefined });
   }
   handleArrowScroll(keys) {
