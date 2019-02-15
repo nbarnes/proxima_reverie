@@ -4,7 +4,7 @@ import { Asset } from "./assets";
 import { entityMapLocationFromCell, Facing, coordsEqual } from "./util";
 
 export default class Entity {
-  constructor(entityDef, scene, brain) {
+  constructor(entityDef, scene) {
     this.asset = new Asset(
       entityDef.imagePath,
       entityDef.frameSize,
@@ -25,9 +25,16 @@ export default class Entity {
       this.asset.frameOffsets
     );
     this.cellPath = [];
-    this.brain = brain;
     this.destination = undefined;
     this.facing = entityDef.facing;
+  }
+
+  get brain() {
+    return this.myBrain;
+  }
+
+  set brain(newBrain) {
+    this.myBrain = newBrain;
   }
 
   get location() {
@@ -82,8 +89,7 @@ export default class Entity {
       this.brain != undefined &&
       eventCell.pathable()
     ) {
-      this.activity = this.brain.getActivity(
-        this,
+      this.activity = this.myBrain.getActivity(
         eventCell,
         startCallback,
         endCallback

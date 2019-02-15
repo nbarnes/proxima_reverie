@@ -7,28 +7,83 @@ import {
 } from "./util";
 import { BinaryHeap } from "./binary_heap";
 
-export class MobileBrain {
-  getActivity(entity, eventCell, startCallback, endCallback) {
-    let start = entity.cellLocation;
+export const BrainFactory = (function() {
+  function newBrain(brainName, entity) {
+    if (brainName == "MobileBrain") {
+      return new MobileBrain(entity);
+    } else if (brainName == "AIBrain") {
+      return new AIBrain(entity);
+    }
+  }
+  return {
+    newBrain: newBrain
+  };
+})();
+
+class Brain {
+  constructor(newEntity) {
+    this.entity = newEntity;
+  }
+}
+
+class MobileBrain extends Brain {
+  constructor(entity) {
+    super(entity);
+  }
+  getActivity(eventCell, startCallback, endCallback) {
+    let start = this.entity.cellLocation;
     let end = eventCell;
     let path = buildPathAStar(start, end);
     let destination = undefined;
     startCallback();
     return () => {
       if (destination != undefined) {
-        let nextPosition = getNextMapPosition(entity, destination);
-        entity.location = nextPosition;
-        if (coordsEqual(entity.location, destination)) {
+        let nextPosition = getNextMapPosition(this.entity, destination);
+        this.entity.location = nextPosition;
+        if (coordsEqual(this.entity.location, destination)) {
           destination = undefined;
         }
       } else if (path.length > 0) {
-        entity.moveBetweenCells(entity.cellLocation, path[0]);
-        destination = getDestination(entity, path);
+        this.entity.moveBetweenCells(this.entity.cellLocation, path[0]);
+        destination = getDestination(this.entity, path);
       } else {
-        entity.activityDone();
+        this.entity.activityDone();
         endCallback();
       }
     };
+  }
+}
+
+class AIBrain extends Brain {
+  constructor(entity) {
+    super(entity);
+  }
+
+  getActivity(startCallback, endCallback) {
+    let start = this.entity.cellLocation;
+    let end = this.pickMovementTarget();
+    let path = buildPathAStar(start, end);
+    let destination = undefined;
+    startCallback();
+    return () => {
+      if (destination != undefined) {
+        let nextPosition = getNextMapPosition(this.entity, destination);
+        this.entity.location = nextPosition;
+        if (coordsEqual(this.entity.location, destination)) {
+          destination = undefined;
+        }
+      } else if (path.length > 0) {
+        this.entity.moveBetweenCells(this.entity.cellLocation, path[0]);
+        destination = getDestination(this.entity, path);
+      } else {
+        this.entity.activityDone();
+        endCallback();
+      }
+    };
+  }
+
+  pickMovementTarget() {
+    return { x: 2, y: 2 };
   }
 }
 

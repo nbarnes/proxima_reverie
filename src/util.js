@@ -14,11 +14,11 @@ export const lesserOf = (a, b) => {
 
 export const throttle = (callback, delay) => {
   let wait = false;
-  return function(arg) {
+  return arg => {
     if (!wait) {
       callback(arg);
       wait = true;
-      setTimeout(function() {
+      setTimeout(() => {
         wait = false;
       }, delay);
     }

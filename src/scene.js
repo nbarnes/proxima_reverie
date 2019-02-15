@@ -9,7 +9,7 @@ import {
   AnimatingMobileGameState
 } from "./game";
 import { ImageManager } from "./assets";
-import { MobileBrain } from "./brain";
+import { BrainFactory } from "./brain";
 import { CursorHighlight, SelectedMobileTileHighlight } from "./tile_highlight";
 import { mapCoordsForCell, buildPathBrensenham, coordsInBounds } from "./util";
 
@@ -27,7 +27,9 @@ export default class Scene {
     this.drawOrderSortedEntities = new BinarySearchTree();
     this.map = new Map(tiles, sceneDef.mapDef.mapSize);
     this.mobiles = sceneDef.mobileDefs.map(mobileDef => {
-      return new Entity(mobileDef, this, new MobileBrain());
+      let entity = new Entity(mobileDef, this);
+      entity.brain = BrainFactory.newBrain(mobileDef.brainName, entity);
+      return entity;
     });
     this.props = sceneDef.propDefs.map(propDef => {
       return new Entity(propDef, this);
