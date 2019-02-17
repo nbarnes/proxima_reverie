@@ -8,7 +8,7 @@ import {
   AutoscrollingGameState,
   AnimatingMobileGameState
 } from "./game";
-import { ImageManager } from "./assets";
+import { AssetManager } from "./assets";
 import { BrainFactory } from "./brain";
 import { CursorHighlight, SelectedMobileTileHighlight } from "./tile_highlight";
 import { mapCoordsForCell, buildPathBrensenham, coordsInBounds } from "./util";
@@ -18,13 +18,20 @@ const BinarySearchTree = require("binary-search-tree").BinarySearchTree;
 export default class Scene {
   constructor(game, sceneDef, viewport, loadCompleteCallback) {
     this.game = game;
-    let tiles = sceneDef.mapDef.tileDefs.map(tileDef => {
-      return new Tile(tileDef.imagePath, tileDef.frameSize);
-    });
-
-    this.cursorTileHighlight = undefined;
+    this.viewport = viewport;
+    this.cameraOffsets = { x: 0, y: 0 };
     // @ts-ignore
     this.drawOrderSortedEntities = new BinarySearchTree();
+    AssetManager.loadAssets(sceneDef.assetDefs, () => {
+      this.assetLoadComplete(sceneDef, loadCompleteCallback);
+    });
+  }
+
+  assetLoadComplete(sceneDef, loadCompleteCallback) {
+    let tiles = [];
+    for (let tileDef of sceneDef.mapDef.tileDefs) {
+      tiles.push(new Tile(AssetManager.get(tileDef)));
+    }
     this.map = new Map(tiles, sceneDef.mapDef.mapSize);
     this.mobiles = sceneDef.mobileDefs.map(mobileDef => {
       let entity = new Entity(mobileDef, this);
@@ -34,14 +41,7 @@ export default class Scene {
     this.props = sceneDef.propDefs.map(propDef => {
       return new Entity(propDef, this);
     });
-    this.tileHighlights = [];
-
-    this.viewport = viewport;
-    this.cameraOffsets = { x: 0, y: 0 };
-
-    ImageManager.loadImages([...tiles, ...this.mobiles, ...this.props], () => {
-      loadCompleteCallback();
-    });
+    loadCompleteCallback();
   }
 
   tick(ticksElapsed) {

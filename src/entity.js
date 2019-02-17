@@ -1,20 +1,14 @@
 "use strict";
 
-import { Asset } from "./assets";
+import { AssetManager } from "./assets";
 import { entityMapLocationFromCell, Facing, coordsEqual } from "./util";
 
 export default class Entity {
   constructor(entityDef, scene) {
-    this.asset = new Asset(
-      entityDef.imagePath,
-      entityDef.frameSize,
-      entityDef.frameOffsets
-    );
+    this.asset = AssetManager.get(entityDef.assetShorthand);
     this.scene = scene;
     if (entityDef.startCell) {
       this.cellLocation = this.scene.map.cellAt(entityDef.startCell);
-    } else {
-      this.cellLocation = undefined;
     }
     if (this.cellLocation) {
       this.addToCell(this.cellLocation);
@@ -25,7 +19,6 @@ export default class Entity {
       this.asset.frameOffsets
     );
     this.cellPath = [];
-    this.destination = undefined;
     this.facing = entityDef.facing;
   }
 

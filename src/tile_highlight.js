@@ -1,42 +1,10 @@
 "use strict";
 
-import { Asset } from "./assets";
-
-export const TileHighlightDefs = [
-  {
-    imagePath: "./src/img/tile_highlights/black_outline_blur.png",
-    frameSize: { width: 512, height: 256 },
-    frameOffsets: { x: 0, y: 0 }
-  },
-  {
-    imagePath: "./src/img/tile_highlights/black_outline.png",
-    frameSize: { width: 512, height: 256 },
-    frameOffsets: { x: 0, y: 0 }
-  },
-  {
-    imagePath: "./src/img/tile_highlights/red_outline.png",
-    frameSize: { width: 512, height: 256 },
-    frameOffsets: { x: 0, y: 0 }
-  },
-  {
-    imagePath: "./src/img/tile_highlights/red_transparent_full_tile.png",
-    frameSize: { width: 512, height: 256 },
-    frameOffsets: { x: 0, y: 0 }
-  },
-  {
-    imagePath: "./src/img/tile_highlights/yellow_transparent_full_tile.png",
-    frameSize: { width: 512, height: 256 },
-    frameOffsets: { x: 0, y: 0 }
-  }
-];
+import { AssetManager } from "./assets";
 
 export class TileHighlight {
-  constructor(highlightDef, location) {
-    this.asset = new Asset(
-      highlightDef.imagePath,
-      highlightDef.frameSize,
-      highlightDef.frameOffsets
-    );
+  constructor(assetShorthand, location) {
+    this.asset = AssetManager.get(assetShorthand);
     this.location = location;
   }
 
@@ -57,12 +25,12 @@ export class TileHighlight {
 
 export class CursorHighlight extends TileHighlight {
   constructor(location) {
-    super(TileHighlightDefs[4], location);
+    super("redTransparentFullTileHighlight", location);
   }
 }
 
 export class SelectedMobileTileHighlight extends TileHighlight {
   constructor(location) {
-    super(TileHighlightDefs[3], location);
+    super("yellowTransparentFullTileHighlight", location);
   }
 }

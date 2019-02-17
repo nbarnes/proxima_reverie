@@ -1,51 +1,55 @@
 "use strict";
 
-import { TileHighlightDefs } from "./tile_highlight";
+import { GlobalAssets } from "./global_assets";
 
-export const ImageManager = (function() {
-  let images = {};
+export const AssetManager = (function() {
+  let assets = {};
 
-  function loadImages(assetOwners, callback) {
-    let imagePaths = assetOwners.map(assetOwner => {
-      return assetOwner.asset.imagePath;
-    });
-    let tileHighlightAssetPaths = TileHighlightDefs.map(def => {
-      return def.imagePath;
+  function loadAssets(assetDefs, callback) {
+    assetDefs = assetDefs.concat(GlobalAssets);
+    let imagePaths = assetDefs.map(assetDef => {
+      return assetDef.imagePath;
     });
     imagePaths = [...new Set(imagePaths)];
-    imagePaths = imagePaths.concat(tileHighlightAssetPaths);
     let imagesRemaining = imagePaths.length;
-    for (let imagePath of imagePaths) {
+    for (let assetDef of assetDefs) {
+      let asset = new Asset(assetDef);
+      assets[assetDef.shorthand] = asset;
       let image = new Image();
-      images[imagePath] = image;
       image.onload = function() {
         imagesRemaining--;
         if (imagesRemaining <= 0) {
           callback();
         }
       };
-      image.src = imagePath;
+      image.src = assetDef.imagePath;
+      asset.image = image;
     }
   }
 
-  function get(imagePath) {
-    return images[imagePath];
+  function get(assetShorthand) {
+    return assets[assetShorthand];
   }
 
   return {
-    loadImages: loadImages,
+    loadAssets: loadAssets,
     get: get
   };
 })();
 
 export class Asset {
-  constructor(imagePath, frameSize, frameOffsets) {
-    this.imagePath = imagePath;
-    this.frameSize = frameSize;
-    this.frameOffsets = frameOffsets || { x: 0, y: 0 };
+  constructor(assetDef) {
+    this.shorthand = assetDef.shorthand;
+    this.imagePath = assetDef.imagePath;
+    this.frameSize = assetDef.frameSize;
+    this.frameOffsets = assetDef.frameOffsets || { x: 0, y: 0 };
   }
 
   get image() {
-    return ImageManager.get(this.imagePath);
+    return this.myImage;
+  }
+
+  set image(newImage) {
+    this.myImage = newImage;
   }
 }
