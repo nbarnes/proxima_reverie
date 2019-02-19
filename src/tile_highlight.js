@@ -25,12 +25,12 @@ export class TileHighlight {
 
 export class CursorHighlight extends TileHighlight {
   constructor(location) {
-    super("redTransparentFullTileHighlight", location);
+    super("yellowTransparentFullTileHighlight", location);
   }
 }
 
 export class SelectedMobileTileHighlight extends TileHighlight {
   constructor(location) {
-    super("yellowTransparentFullTileHighlight", location);
+    super("redTransparentFullTileHighlight", location);
   }
 }

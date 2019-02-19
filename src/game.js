@@ -64,7 +64,7 @@ export class LoadingSceneGamestate {
   handle() {
     if (this.loadComplete) {
       this.game.changeState(new AwaitingInputGamestate(this.game, this.scene));
-      this.scene.activateNextMobile();
+      this.scene.startPlayerPhase();
     }
   }
   enter() {
@@ -151,15 +151,11 @@ export class AutoscrollingGameState {
   enter() {}
   leave() {}
 }
+
 export class AnimatingMobileGameState {
   constructor(game, scene) {
     this.game = game;
     this.scene = scene;
-  }
-
-  tick(ticksElapsed) {
-    this.scene.tick(ticksElapsed);
-    this.scene.draw();
   }
   handle(ticksElapsed) {
     let keys = Input.getKeys();
@@ -174,6 +170,25 @@ export class AnimatingMobileGameState {
   enter() {}
   leave() {}
 }
+
+// export class DoingEnemyPhaseGameState {
+//   constructor(game, scene) {
+//     this.game = game;
+//     this.scene = scene;
+//   }
+//   handle(ticksElapsed) {
+//     let keys = Input.getKeys();
+//     handleArrowScroll(keys, this.scene);
+
+//     this.scene.tick(ticksElapsed);
+//     this.scene.draw();
+//     Input.resetInputs();
+//     // handle mouse movement -> no op
+//     // handle mouse click -> no op
+//   }
+//   enter() {}
+//   leave() {}
+// }
 
 function handleArrowScroll(keys, scene) {
   if (keys.includes("ArrowUp")) {

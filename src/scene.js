@@ -38,6 +38,11 @@ export default class Scene {
       entity.brain = BrainFactory.newBrain(mobileDef.brainName, entity);
       return entity;
     });
+    this.bots = sceneDef.botDefs.map(botDef => {
+      let entity = new Entity(botDef, this);
+      entity.brain = BrainFactory.newBrain(botDef.brainName, entity);
+      return entity;
+    });
     this.props = sceneDef.propDefs.map(propDef => {
       return new Entity(propDef, this);
     });
@@ -48,6 +53,9 @@ export default class Scene {
     if (ticksElapsed > 0) {
       for (let mobile of this.mobiles) {
         mobile.tick(ticksElapsed);
+      }
+      for (let bot of this.bots) {
+        bot.tick(ticksElapsed);
       }
       for (let prop of this.props) {
         prop.tick(ticksElapsed);
@@ -92,7 +100,8 @@ export default class Scene {
       let cellContents = this.map.cellAt(cellTarget).contents[0];
       if (
         this.mobiles.includes(cellContents) &&
-        cellContents != this.activeMobile
+        cellContents != this.activeMobile &&
+        this.unmovedPlayerEntities.includes(cellContents)
       ) {
         this.activeMobile = cellContents;
       } else {
@@ -104,8 +113,19 @@ export default class Scene {
             );
           },
           () => {
-            this.game.changeState(new AwaitingInputGamestate(this.game, this));
-            this.activateNextMobile();
+            let activeMobileIndex = this.unmovedPlayerEntities.indexOf(
+              this.activeMobile
+            );
+            this.unmovedPlayerEntities = this.unmovedPlayerEntities.filter(
+              entity => {
+                return entity != this.activeMobile;
+              }
+            );
+            if (this.unmovedPlayerEntities.length > 0) {
+              this.activeMobile = this.unmovedPlayerEntities[activeMobileIndex];
+            } else {
+              this.startEnemyPhase();
+            }
           }
         );
       }
@@ -126,17 +146,30 @@ export default class Scene {
     );
   }
 
-  activateNextMobile() {
+  startPlayerPhase() {
+    this.unmovedPlayerEntities = this.mobiles.slice(0);
+    this.activateNextPlayerMobile();
+  }
+
+  activateNextPlayerMobile() {
     if (
-      this.mobiles.slice(-1)[0] == this.activeMobile ||
+      this.unmovedPlayerEntities.slice(-1)[0] == this.activeMobile ||
       this.activeMobile == undefined
     ) {
-      this.activeMobile = this.mobiles[0];
+      this.game.changeState(new AwaitingInputGamestate(this.game, this));
+      this.activeMobile = this.unmovedPlayerEntities[0];
     } else {
+      this.game.changeState(new AwaitingInputGamestate(this.game, this));
       this.activeMobile = this.mobiles[
-        this.mobiles.indexOf(this.activeMobile) + 1
+        this.unmovedPlayerEntities.indexOf(this.activeMobile) + 1
       ];
     }
+  }
+
+  activatePlayerMobileAtIndex(index) {}
+
+  startEnemyPhase() {
+    this.startPlayerPhase();
   }
 
   set activeMobile(newActiveMobile) {

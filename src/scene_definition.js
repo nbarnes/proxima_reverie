@@ -119,6 +119,18 @@ export const sceneDef = {
     //   brainName: "AIBrain"
     // }
   ],
+  botDefs: [
+    {
+      assetShorthand: "8WayMobile",
+      startCell: { x: 6, y: 9 },
+      brainName: "AIBrain"
+    },
+    {
+      assetShorthand: "8WayMobile",
+      startCell: { x: 2, y: 1 },
+      brainName: "AIBrain"
+    }
+  ],
   propDefs: [
     {
       assetShorthand: "statue1",
