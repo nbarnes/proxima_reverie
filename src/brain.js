@@ -59,10 +59,9 @@ class AIBrain extends Brain {
     super(entity);
   }
 
-  getActivity(startCallback, endCallback) {
+  getActivity(eventCell, startCallback, endCallback) {
     let start = this.entity.cellLocation;
-    let end = this.pickMovementTarget();
-    let path = buildPathAStar(start, end);
+    let path = buildPathAStar(start, eventCell.coords);
     let destination = undefined;
     startCallback();
     return () => {
@@ -80,10 +79,6 @@ class AIBrain extends Brain {
         endCallback();
       }
     };
-  }
-
-  pickMovementTarget() {
-    return { x: 2, y: 2 };
   }
 }
 

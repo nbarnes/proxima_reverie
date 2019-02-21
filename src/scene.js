@@ -11,7 +11,12 @@ import {
 import { AssetManager } from "./assets";
 import { BrainFactory } from "./brain";
 import { CursorHighlight, SelectedMobileTileHighlight } from "./tile_highlight";
-import { mapCoordsForCell, buildPathBrensenham, coordsInBounds } from "./util";
+import {
+  rand,
+  mapCoordsForCell,
+  buildPathBrensenham,
+  coordsInBounds
+} from "./util";
 
 const BinarySearchTree = require("binary-search-tree").BinarySearchTree;
 
@@ -125,6 +130,9 @@ export default class Scene {
             if (this.unmovedPlayerEntities.length > 0) {
               this.activeMobile = this.unmovedPlayerEntities[activeMobileIndex];
             } else {
+              for (let mobile of this.mobiles) {
+                mobile.greyscale = false;
+              }
               this.startEnemyPhase();
             }
           }
@@ -149,9 +157,6 @@ export default class Scene {
 
   startPlayerPhase() {
     this.unmovedPlayerEntities = this.mobiles.slice(0);
-    for (let mobile of this.mobiles) {
-      mobile.greyscale = false;
-    }
     this.activateNextPlayerMobile();
   }
 
@@ -173,7 +178,34 @@ export default class Scene {
   activatePlayerMobileAtIndex(index) {}
 
   startEnemyPhase() {
-    this.startPlayerPhase();
+    this.remainingEnemyMobiles = this.bots.slice(0);
+    this.doEnemyMove(this.remainingEnemyMobiles[0]);
+  }
+
+  doEnemyMove(enemy) {
+    let cellLocation = this.getEnemyMoveLocationTarget();
+    enemy.respondToMoveCommand(
+      this.map.cellAt(cellLocation),
+      () => {
+        this.game.changeState(new AnimatingMobileGameState(this.game, this));
+      },
+      () => {
+        this.remainingEnemyMobiles = this.remainingEnemyMobiles.filter(
+          entity => {
+            return entity != enemy;
+          }
+        );
+        if (this.remainingEnemyMobiles.length == 0) {
+          this.startPlayerPhase();
+        } else {
+          this.doEnemyMove(this.remainingEnemyMobiles[0]);
+        }
+      }
+    );
+  }
+
+  getEnemyMoveLocationTarget() {
+    return { x: rand(this.map.mapSize), y: rand(this.map.mapSize) };
   }
 
   set activeMobile(newActiveMobile) {
