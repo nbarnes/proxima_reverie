@@ -121,6 +121,7 @@ export default class Scene {
                 return entity != this.activeMobile;
               }
             );
+            this.activeMobile.greyscale = true;
             if (this.unmovedPlayerEntities.length > 0) {
               this.activeMobile = this.unmovedPlayerEntities[activeMobileIndex];
             } else {
@@ -148,6 +149,9 @@ export default class Scene {
 
   startPlayerPhase() {
     this.unmovedPlayerEntities = this.mobiles.slice(0);
+    for (let mobile of this.mobiles) {
+      mobile.greyscale = false;
+    }
     this.activateNextPlayerMobile();
   }
 

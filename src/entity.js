@@ -18,6 +18,7 @@ export default class Entity {
       this.scene.map,
       this.asset.frameOffsets
     );
+    this.myShouldGreyscale = false;
     this.cellPath = [];
     this.facing = entityDef.facing;
   }
@@ -123,8 +124,12 @@ export default class Entity {
   }
 
   drawOnto(target, offsets) {
+    let assetImage = this.asset.image;
+    if (this.myShouldGreyscale) {
+      assetImage = this.asset.greyscale;
+    }
     target.drawImage(
-      this.asset.image,
+      assetImage,
       this.frameXOrigin,
       this.frameYOrigin,
       this.asset.frameSize.width,
@@ -134,6 +139,14 @@ export default class Entity {
       this.asset.frameSize.width,
       this.asset.frameSize.height
     );
+  }
+
+  get greyscale() {
+    return this.myShouldGreyscale;
+  }
+
+  set greyscale(newGreyscale) {
+    this.myShouldGreyscale = newGreyscale;
   }
 
   isSelectedMobile() {

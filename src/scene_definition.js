@@ -5,42 +5,42 @@ export const sceneDef = {
     {
       shorthand: "brickTile",
       imagePath: "./src/img/ground_tiles/brickpavers2.png",
-      frameSize: { x: 512, y: 256 }
+      frameSize: { width: 512, height: 256 }
     },
     {
       shorthand: "concreteTile",
       imagePath: "./src/img/ground_tiles/concrete368a.png",
-      frameSize: { x: 256, y: 128 }
+      frameSize: { width: 256, height: 128 }
     },
     {
       shorthand: "concreteBrickTile",
       imagePath: "./src/img/ground_tiles/cretebrick970.png",
-      frameSize: { x: 512, y: 256 }
+      frameSize: { width: 512, height: 256 }
     },
     {
       shorthand: "dirtTile",
       imagePath: "./src/img/ground_tiles/dirt.png",
-      frameSize: { x: 256, y: 128 }
+      frameSize: { width: 256, height: 128 }
     },
     {
       shorthand: "dirtSandTile",
       imagePath: "./src/img/ground_tiles/dirtsand2.png",
-      frameSize: { x: 512, y: 256 }
+      frameSize: { width: 512, height: 256 }
     },
     {
       shorthand: "rockTile",
       imagePath: "./src/img/ground_tiles/rock.png",
-      frameSize: { x: 256, y: 128 }
+      frameSize: { width: 256, height: 128 }
     },
     {
       shorthand: "snowTile",
       imagePath: "./src/img/ground_tiles/snow.png",
-      frameSize: { x: 256, y: 128 }
+      frameSize: { width: 256, height: 128 }
     },
     {
       shorthand: "stoneTile",
       imagePath: "./src/img/ground_tiles/stone.png",
-      frameSize: { x: 512, y: 256 }
+      frameSize: { width: 512, height: 256 }
     },
     {
       shorthand: "8WayMobile",
