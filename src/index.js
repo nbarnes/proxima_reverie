@@ -10,7 +10,7 @@ import { throttle } from "./util";
 document.addEventListener("DOMContentLoaded", function() {
   console.log("Proxima Reverie approaches!");
 
-  var viewport = document.getElementById("viewport-canvas");
+  let viewport = document.getElementById("viewport-canvas");
   let viewportDimensions = { x: 600, y: 400 };
   // @ts-ignore
   viewport.width = viewportDimensions.x;

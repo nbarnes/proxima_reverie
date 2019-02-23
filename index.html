@@ -17,15 +17,26 @@
   <body autofocus>
     <script src="./dist/main.js" type="text/javascript"></script>
 
-    <div id="loading-images-message">Loading images....</div>
-    <div id="images-loaded-message" class="hide">Image load complete</div>
+    <div class="loading-status-message" id="loading-images-message">
+      Loading images....
+    </div>
+    <div class="loading-status-message" id="images-loaded-message" class="hide">
+      Image load complete
+    </div>
 
-    <canvas id="viewport-canvas"></canvas>
+    <div id="interface-holder">
+      <div class="canvas-overlay"></div>
+      <canvas id="viewport-canvas"></canvas>
+    </div>
   </body>
-  <template id="starting-alien-turn-template">
-    Aliens Moving...
+  <template class="canvas-overlay" id="starting-alien-turn-template"
+    ><div class="splash-text">
+      Aliens Moving...
+    </div>
   </template>
-  <template id="starting-player-turn-template">
-    Player Turn
+  <template class="canvas-overlay" id="starting-player-turn-template"
+    ><div class="splash-text">
+      Player Turn
+    </div>
   </template>
 </html>
