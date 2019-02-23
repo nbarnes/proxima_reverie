@@ -19,6 +19,7 @@
   "homepage": "https://github.com/nbarnes/proxima_reverie#readme",
   "devDependencies": {
     "css-loader": "^1.0.0",
+    "file-loader": "^3.0.1",
     "mini-css-extract-plugin": "^0.4.1",
     "webpack": "^4.15.1",
     "webpack-cli": "^3.0.8"

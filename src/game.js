@@ -124,10 +124,15 @@ export class AwaitingInputGamestate {
 }
 
 export class AutoscrollingGameState {
-  constructor(game, scene, scrollTrack) {
+  constructor(game, scene, scrollTrack, scrollSpeed) {
     this.game = game;
     this.scene = scene;
     this.scrollTrack = scrollTrack;
+    if (scrollSpeed) {
+      this.scrollSpeed = scrollSpeed;
+    } else {
+      this.scrollSpeed = 10;
+    }
   }
 
   handle(ticksElapsed) {
@@ -137,7 +142,7 @@ export class AutoscrollingGameState {
     } else {
       if (ticksElapsed > 0) {
         let scrollDistance = lesserOf(
-          ticksElapsed * 10,
+          ticksElapsed * this.scrollSpeed,
           this.scrollTrack.length
         );
         this.scrollTrack = this.scrollTrack.slice(scrollDistance - 1);
@@ -171,24 +176,27 @@ export class AnimatingMobileGameState {
   leave() {}
 }
 
-// export class DoingEnemyPhaseGameState {
-//   constructor(game, scene) {
-//     this.game = game;
-//     this.scene = scene;
-//   }
-//   handle(ticksElapsed) {
-//     let keys = Input.getKeys();
-//     handleArrowScroll(keys, this.scene);
-
-//     this.scene.tick(ticksElapsed);
-//     this.scene.draw();
-//     Input.resetInputs();
-//     // handle mouse movement -> no op
-//     // handle mouse click -> no op
-//   }
-//   enter() {}
-//   leave() {}
-// }
+export class DisplayingSplashGameState {
+  constructor(game, scene, endingCallback, duration) {
+    this.game = game;
+    this.scene = scene;
+    this.endingCallback = endingCallback;
+    this.timeout = false;
+    if (duration) {
+      this.duration = duration;
+    } else {
+      this.duration = 2000;
+    }
+    this.timer = setTimeout(() => {
+      this.timeout = true;
+    }, duration);
+  }
+  handle(ticksElapsed) {
+    if (this.timeout) {
+      this.endingCallback();
+    }
+  }
+}
 
 function handleArrowScroll(keys, scene) {
   if (keys.includes("ArrowUp")) {

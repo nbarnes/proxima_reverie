@@ -223,10 +223,10 @@ export default class Scene {
     return this.myActiveMobile;
   }
 
-  scrollToLocation(location) {
+  scrollToLocation(location, scrollSpeed) {
     let scrollTrack = buildPathBrensenham(this.cameraOffsets, location);
     this.game.changeState(
-      new AutoscrollingGameState(this.game, this, scrollTrack)
+      new AutoscrollingGameState(this.game, this, scrollTrack, scrollSpeed)
     );
   }
 
@@ -248,8 +248,8 @@ export default class Scene {
     }
   }
 
-  // Take the cursor location within the viewport and returns the location
-  // within the larger scene map.  See also getMouseEventCellLocation().
+  // Takes the cursor location within the viewport and returns the location
+  // within the larger scene map. See also getMouseEventCellLocation().
   getMouseEventMapLocation(cursorLocation) {
     if (cursorLocation) {
       let rect = this.viewport.getBoundingClientRect();
@@ -265,7 +265,7 @@ export default class Scene {
   }
 
   // Requires a cursor location defined in terms of the entire map, NOT in terms
-  // of the viewport.  Use getMouseEventMapLocation() to translate from viewport
+  // of the viewport. Use getMouseEventMapLocation() to translate from viewport
   // location to map location.
   getMouseEventCellLocation(cursorLocation) {
     if (cursorLocation) {

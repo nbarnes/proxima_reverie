@@ -3,8 +3,8 @@
 body {
   color: #fff;
   background-color: #333;
-  font-size: 14px;
-  font-family: "Lato", sans-serif;
+  font-size: 40px;
+  font-family: "Xtender", "Lato", sans-serif;
 }
 
 canvas {
@@ -13,5 +13,10 @@ canvas {
 
 .hide {
   display: none;
+}
+
+@font-face {
+  font-family: "Xtender";
+  src: url(fonts/V5Xtende.ttf) format("truetype");
 }
 

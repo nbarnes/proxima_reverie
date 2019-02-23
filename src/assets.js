@@ -17,6 +17,7 @@ export const AssetManager = (function() {
       assets[assetDef.shorthand] = asset;
       let image = new Image();
       image.onload = function() {
+        // @ts-ignore - JSDoc is convinced that asset.image takes an HTMLCanvasElement, but it actually takes an HTMLImageElement
         asset.image = image;
         imagesRemaining--;
         if (imagesRemaining <= 0) {
