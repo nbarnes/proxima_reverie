@@ -38,6 +38,7 @@ export class Game {
   }
 
   changeState(newState) {
+    console.log(newState.constructor.name);
     this.gameState.leave();
     newState.enter();
     this.gameState = newState;
@@ -177,25 +178,39 @@ export class AnimatingMobileGameState {
 }
 
 export class DisplayingSplashGameState {
-  constructor(game, scene, endingCallback, duration) {
+  constructor(game, scene, splashId, endingCallback, duration) {
     this.game = game;
     this.scene = scene;
     this.endingCallback = endingCallback;
+
+    let splashScreenTemplate = document.querySelector(`#${splashId}-template`);
+    this.splashScreen = splashScreenTemplate.content;
+    this.splashHolder = document.querySelector("#interface-holder");
+    this.splashHolder.appendChild(this.splashScreen);
+
     this.timeout = false;
     if (duration) {
       this.duration = duration;
     } else {
-      this.duration = 2000;
+      this.duration = 5000;
     }
     this.timer = setTimeout(() => {
+      console.log(this.duration);
+      console.log("timed out");
       this.timeout = true;
     }, duration);
   }
   handle(ticksElapsed) {
     if (this.timeout) {
+      let splashOverlay = document.querySelector(
+        "#interface-holder .splash-screen"
+      );
+      this.splashHolder.removeChild(splashOverlay);
       this.endingCallback();
     }
   }
+  enter() {}
+  leave() {}
 }
 
 function handleArrowScroll(keys, scene) {

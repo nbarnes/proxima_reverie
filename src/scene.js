@@ -6,7 +6,8 @@ import Entity from "./entity";
 import {
   AwaitingInputGamestate,
   AutoscrollingGameState,
-  AnimatingMobileGameState
+  AnimatingMobileGameState,
+  DisplayingSplashGameState
 } from "./game";
 import { AssetManager } from "./assets";
 import { BrainFactory } from "./brain";
@@ -175,11 +176,19 @@ export default class Scene {
     }
   }
 
-  activatePlayerMobileAtIndex(index) {}
-
   startEnemyPhase() {
-    this.remainingEnemyMobiles = this.bots.slice(0);
-    this.doEnemyMove(this.remainingEnemyMobiles[0]);
+    this.game.changeState(
+      new DisplayingSplashGameState(
+        this.game,
+        this,
+        "starting-alien-turn",
+        () => {
+          this.remainingEnemyMobiles = this.bots.slice(0);
+          this.doEnemyMove(this.remainingEnemyMobiles[0]);
+        },
+        1500
+      )
+    );
   }
 
   doEnemyMove(enemy) {
