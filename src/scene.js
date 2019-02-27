@@ -7,6 +7,7 @@ import {
   AwaitingInputGamestate,
   AutoscrollingGameState,
   AnimatingMobileGameState,
+  TrackingMobileMoveGameState,
   DisplayingSplashGameState
 } from "./game";
 import { AssetManager } from "./assets";
@@ -196,7 +197,9 @@ export default class Scene {
     enemy.respondToMoveCommand(
       this.map.cellAt(cellLocation),
       () => {
-        this.game.changeState(new AnimatingMobileGameState(this.game, this));
+        this.game.changeState(
+          new TrackingMobileMoveGameState(this.game, this, enemy)
+        );
       },
       () => {
         this.remainingEnemyMobiles = this.remainingEnemyMobiles.filter(

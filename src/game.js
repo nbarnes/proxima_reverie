@@ -177,16 +177,38 @@ export class AnimatingMobileGameState {
   leave() {}
 }
 
+export class TrackingMobileMoveGameState {
+  constructor(game, scene, trackingTarget) {
+    this.game = game;
+    this.scene = scene;
+    this.trackingTarget = trackingTarget;
+  }
+  handle(ticksElapsed) {
+    if (this.trackingTarget) {
+      this.scene.cameraOffsets = this.trackingTarget.location;
+    }
+
+    this.scene.tick(ticksElapsed);
+    this.scene.draw();
+    Input.resetInputs();
+    // handle mouse movement -> no op
+    // handle mouse click -> no op
+  }
+  enter() {}
+  leave() {}
+}
+
 export class DisplayingSplashGameState {
   constructor(game, scene, splashId, endingCallback, duration) {
     this.game = game;
     this.scene = scene;
     this.endingCallback = endingCallback;
 
-    let splashScreenTemplate = document.querySelector(`#${splashId}-template`);
-    this.splashScreen = splashScreenTemplate.content;
+    let splashScreen = document
+      .querySelector(`#${splashId}-template`)
+      .content.cloneNode(true).firstElementChild;
     this.splashHolder = document.querySelector("#interface-holder");
-    this.splashHolder.appendChild(this.splashScreen);
+    this.splashHolder.appendChild(splashScreen);
 
     this.timeout = false;
     if (duration) {
@@ -195,8 +217,6 @@ export class DisplayingSplashGameState {
       this.duration = 5000;
     }
     this.timer = setTimeout(() => {
-      console.log(this.duration);
-      console.log("timed out");
       this.timeout = true;
     }, duration);
   }
